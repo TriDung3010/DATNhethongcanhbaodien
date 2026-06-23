@@ -1,0 +1,462 @@
+' ─────────────────────────────────────────────────────────
+' WORKFLOW TỔNG THỂ - HỆ THỐNG CẢNH BÁO RÒ RỈ ĐIỆN NĂNG
+' ─────────────────────────────────────────────────────────
+' Copy toàn bộ nội dung file này vào https://www.plantuml.com/
+
+@startuml
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam titleFontSize 16
+skinparam titleFontStyle bold
+skinparam arrowThickness 1.5
+skinparam packageBorderColor #4472C4
+skinparam packageBackgroundColor #D6E4F0
+left to right direction
+
+title WORKFLOW HỆ THỐNG CẢNH BÁO RÒ RỈ ĐIỆN NĂNG
+
+' ═════════════════════════════════════════════════════
+' PHẦN 1: Use Case
+' ═════════════════════════════════════════════════════
+package "PHẦN CỨNG (Model House)" as hw #FFE0E0 {
+  usecase "ESP32\nKhởi tạo" as UC1
+  usecase "Đọc ZCT\n(Cảm biến dòng)" as UC2
+  usecase "Đọc biến trở\n(Chỉnh mức rò)" as UC3
+  usecase "Nhấn nút\nRÒ RỈ / RESET" as UC4
+  usecase "Điều khiển\nRelay + Buzzer + LED" as UC5
+  usecase "Gửi HTTP POST\nJSON lên Server" as UC6
+}
+
+package "BACKEND (Spring Boot)" as be #E0FFE0 {
+  usecase "Nhận dữ liệu\nREST API" as UC7
+  usecase "Lưu MySQL\nSensorData" as UC8
+  usecase "Kiểm tra ngưỡng\n30mA" as UC9
+  usecase "Lưu AlertHistory\nnếu quá ngưỡng" as UC10
+  usecase "Push WebSocket\n/topic/alert" as UC11
+}
+
+package "FRONTEND (Dashboard)" as fe #E0E0FF {
+  usecase "Đăng ký WebSocket\n/topic/alert" as UC12
+  usecase "Hiển thị biểu đồ\nChart.js" as UC13
+  usecase "Popup cảnh báo\n+ Âm thanh" as UC14
+  usecase "Bảng lịch sử\nAlert" as UC15
+  usecase "Gọi REST API\nGET /latest" as UC16
+}
+
+' Quan hệ
+UC1 --> UC2
+UC1 --> UC3
+UC1 --> UC4
+UC2 --> UC5
+UC3 --> UC5
+UC4 --> UC5
+UC5 --> UC6
+UC6 --> UC7
+UC7 --> UC8
+UC8 --> UC9
+UC9 --> UC10
+UC9 --> UC11
+UC11 --> UC12
+UC12 --> UC13
+UC12 --> UC14
+UC12 --> UC15
+UC13 --> UC16
+UC14 --> UC16
+
+@enduml
+
+' ═════════════════════════════════════════════════════
+' PHẦN 2: Activity Diagram - Active Edge Alert
+' ═════════════════════════════════════════════════════
+
+@startuml
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+title QUY TRÌNH XỬ LÝ CẢNH BÁO (Edge Alert - Active Low)
+
+start
+:Khởi tạo ESP32;
+:pinMode các chân OUTPUT/INPUT;
+:connectWiFi();
+:controlApplianceLEDs(true);
+:Bật LED thiết bị lúc đầu;
+
+repeat
+  :readButtons();
+  
+  if (Nút RÒ RỈ được nhấn?) then (Có)
+    :simulateLeak = !simulateLeak;
+    :Serial print "RO RI: BAT/TAT";
+  endif
+  
+  if (Nút RESET được nhấn?) then (Có)
+    :simulateLeak = false;
+    :alertActive = false;
+    :digitalWrite(PIN_RELAY, LOW);
+    :controlApplianceLEDs(true);
+  endif
+  
+  ' ── Đọc dòng rò ──
+  if (simulateLeak == true?) then (Có - Giả lập)
+    :potValue = analogRead(PIN_POT);
+    :leakageCurrent = potValue * 100 / 4095;
+    note right: 0..4095 → 0..100 mA
+  else (Không - ZCT thật)
+    :rawMin=4095, rawMax=0;
+    repeat (50 lần)
+      :raw = analogRead(PIN_ZCT);
+      :Cập nhật rawMin/rawMax;
+      :delayMicroseconds(100);
+    repeatwhile
+    :peakToPeak = rawMax - rawMin;
+    :voltageRms = (p2p/2)*(3.3/4095)*0.707;
+    :currentMA = (voltageRms/0.1)*1000;
+    :if (currentMA < 2.0) currentMA = 0.0;
+  endif
+  
+  ' ── Edge Alert ──
+  if (leakageCurrent >= 30mA?) then (Có - Rò rỉ)
+    if (alertActive == false?) then (Vừa vượt ngưỡng → TRUE edge)
+      :alertActive = true;
+      :relayOn = false;
+      :digitalWrite(PIN_RELAY, HIGH);
+      :controlApplianceLEDs(false);
+      :println "!!! CANH BAO: Da ngat dien!";
+      :Gửi alert=true lên Server;
+    endif
+    :controlBuzzer(): Nhấp nháy 300ms;
+    :digitalWrite(PIN_LED, blink 200ms);
+  else (Không - Bình thường)
+    if (alertActive == true?) then (Vừa hết rò → FALSE edge)
+      :alertActive = false;
+      :relayOn = true;
+      :digitalWrite(PIN_RELAY, LOW);
+      :controlApplianceLEDs(true);
+      :println "Het canh bao. Dong dien tro lai.";
+      :Gửi alert=false lên Server;
+    endif
+    :digitalWrite(PIN_BUZZER, LOW);
+  endif
+  
+  :printStatus() Serial;
+  
+  ' ── Gửi định kỳ ──
+  if (millis() - lastSendTime >= 3000ms?) then (Có)
+    :Tạo JSON payload;
+    :HTTP POST đến SERVER_URL;
+    if (HTTP thành công?) then (Có)
+      :println "Server: " + response;
+    else (Không)
+      :print ".";
+    endif
+    :lastSendTime = millis();
+  endif
+  
+  :delay(200);
+  
+repeat while (Luôn chạy)
+
+@enduml
+
+
+' ═════════════════════════════════════════════════════
+' PHẦN 3: Quy trình Backend xử lý request
+' ═════════════════════════════════════════════════════
+
+@startuml
+!theme plain
+skinparam backgroundColor #FEFEFE
+title QUY TRÌNH BACKEND XỬ LÝ DỮ LIỆU
+
+actor "ESP32" as esp
+participant "SensorDataController" as ctrl
+participant "SensorDataService" as svc
+participant "SensorDataRepository" as repo
+participant "AlertHistoryRepository" as alertRepo
+database "MySQL" as db
+participant "WebSocket" as ws
+actor "Dashboard" as dash
+
+== 1. ESP32 gửi dữ liệu ==
+esp -> ctrl: POST /api/v1/sensor-data\nContent-Type: application/json\n{deviceId, leakageCurrent, alert, relayState}
+
+ctrl -> ctrl: @Valid kiểm tra DTO
+ctrl -> svc: processSensorData(dto)
+
+svc -> svc: SensorData entity\n→ setTimestamp(LocalDateTime.now())
+
+svc -> repo: save(sensorData)
+repo -> db: INSERT INTO sensor_data...
+db --> repo: OK
+
+svc -> svc: Kiểm tra dto.getAlert()
+
+alt alert == true
+    svc -> svc: Tạo AlertHistory entity\n→ setAlertType("LEAKAGE_DETECTED")\n→ setDescription("Dòng rò: XmA")
+    svc -> alertRepo: save(alertHistory)
+    alertRepo -> db: INSERT INTO alert_history...
+    
+    svc -> svc: Tạo AlertEventDTO
+    svc -> ws: convertAndSend("/topic/alert", alertEventDTO)
+    ws -> ws: Gửi STOMP frame đến subscribers
+    ws -> dash: Nhận alert event
+    note right: Dashboard:\nPopup + Âm thanh + Chart
+    
+else alert == false
+    svc -> svc: Nếu có alert chưa resolved, cập nhật
+    svc -> alertRepo: findByDeviceIdAndResolvedFalse
+    svc -> alertRepo: setResolved(true), setTimestamp(now)
+    svc -> ws: convertAndSend("/topic/alert", {alert=false})
+    ws -> dash: Trạng thái bình thường
+end
+
+ctrl --> esp: 201 Created + SensorDataDTO
+
+== 2. Dashboard tải dữ liệu lịch sử ==
+dash -> ctrl: GET /api/v1/sensor-data/latest
+ctrl -> svc: getLatestData()
+svc -> repo: findTopByOrderByTimestampDesc()
+repo --> svc: SensorData
+svc --> ctrl: SensorDataDTO
+ctrl --> dash: 200 OK + {latest data}
+
+dash -> ctrl: GET /api/v1/alerts
+ctrl -> svc: getAlerts()
+svc -> alertRepo: findFirst20ByOrderByTimestampDesc()
+alertRepo --> svc: List<AlertHistory>
+svc --> ctrl: List<AlertEventDTO>
+ctrl --> dash: 200 OK + [alerts...]
+
+@enduml
+
+
+' ═════════════════════════════════════════════════════
+' PHẦN 4: Quy trình khởi động hệ thống
+' ═════════════════════════════════════════════════════
+
+@startuml
+!theme plain
+skinparam backgroundColor #FEFEFE
+title QUY TRÌNH KHỞI ĐỘNG HỆ THỐNG
+
+|#FFE0E0|Người dùng|
+|#E0FFE0|MySQL|
+|#E0F0FF|Backend (Spring Boot)|
+|#FFF0E0|Frontend (Node.js)|
+|#E0E0FF|ESP32|
+|#F0F0F0|Trình duyệt|
+
+== Bước 1: Khởi động Cơ sở dữ liệu ==
+|Người dùng|
+start
+:Chạy lệnh mysqld\n--datadir="...";
+|MySQL|
+:MySQL start\nPort 3306;
+note right: Chạy ngầm\nhoặc cửa sổ riêng
+
+== Bước 2: Khởi động Backend ==
+|Người dùng|
+:cd backend_springboot\nmvn spring-boot:run;
+|Backend (Spring Boot)|
+:Spring Boot khởi tạo;
+:Load WebConfig (CORS);
+:Load WebSocketConfig\nSTOMP endpoint /ws;
+:JPA kiểm tra Entity\n→ ddl-auto: update;
+|MySQL|
+:Tạo bảng sensor_data\n+ alert_history\n(nếu chưa có);
+|Backend (Spring Boot)|
+:Server ready\nPort 8080;
+
+== Bước 3: Khởi động Dashboard ==
+|Người dùng|
+:cd frontend_dashboard\nnode server.js;
+|Frontend (Node.js)|
+:HTTP Server static\nPort 3000;
+
+== Bước 4: Cấp nguồn ESP32 ==
+|Người dùng|
+:Cắm USB / cấp nguồn;
+|ESP32|
+:Khởi tạo hệ thống;
+:connectWiFi();
+note right: WiFi OK → IP\nWiFi FAIL → Offline
+
+|ESP32|
+:Bật LED thiết bị;
+pin "Sẵn sàng" as ready
+
+== Bước 5: Mở Dashboard ==
+|Người dùng|
+:Trình duyệt → localhost:3000;
+|Trình duyệt|
+:GET index.html → CSS/JS;
+:Chart.js vẽ biểu đồ;
+:SockJS → connect /ws;
+:STOMP subscribe /topic/alert;
+:GET /api/v1/sensor-data/latest;
+:GET /api/v1/alerts;
+note right: Dashboard hiển thị\ndữ liệu đầu tiên
+
+== Bước 6: Hệ thống chạy ổn định ==
+|ESP32|
+repeat
+  :Đọc cảm biến (3 giây/lần);
+  :Xử lý alert;
+  :Điều khiển Relay/LED;
+  :HTTP POST lên Server;
+  :delay(200);
+repeat while (Luôn chạy)
+
+|Backend (Spring Boot)|
+:Luôn lắng nghe\nPOST + WebSocket;
+
+|Trình duyệt|
+:Luôn cập nhật\nbiểu đồ + alert;
+
+stop
+@enduml
+
+
+' ═════════════════════════════════════════════════════
+' PHẦN 5: Chi tiết format JSON giao tiếp
+' ═════════════════════════════════════════════════════
+
+@startuml
+!theme plain
+skinparam backgroundColor #FEFEFE
+title GIAO TIẾP GIỮA CÁC THÀNH PHẦN
+
+rectangle "ESP32" as esp
+rectangle "REST API\n/api/v1/sensor-data" as api
+rectangle "WebSocket\nSTOMP /topic/alert" as ws
+rectangle "Dashboard" as dash
+
+note right of esp
+  === POST JSON ===
+  {
+    "deviceId": "ESP32_NHA_MO_HINH",
+    "leakageCurrent": 45.2,
+    "unit": "mA",
+    "alert": true,
+    "relayState": false,
+    "timestamp": "1234567"
+  }
+  
+  HEADERS:
+  Content-Type: application/json
+end note
+
+note left of api
+  === RESPONSE 201 ===
+  {
+    "id": 157,
+    "deviceId": "ESP32_NHA_MO_HINH",
+    "leakageCurrent": 45.2,
+    "alert": true,
+    "relayState": false,
+    "timestamp": "2026-06-19T14:30:00"
+  }
+end note
+
+note left of ws
+  === STOMP Frame ===
+  Topic: /topic/alert
+  
+  {
+    "deviceId": "ESP32_NHA_MO_HINH",
+    "leakageCurrent": 45.2,
+    "alertType": "LEAKAGE_DETECTED",
+    "description": "Phát hiện rò rỉ 45.2mA - Đã ngắt tải"
+  }
+end note
+
+note right of dash
+  === REST GET ===
+  GET /api/v1/sensor-data/latest
+  GET /api/v1/alerts
+end note
+
+esp -down-> api : HTTP POST (3s)
+api -down-> ws : Push when alert
+ws -down-> dash : STOMP subscribe
+dash -up-> api : HTTP GET (khi tải trang)
+@enduml
+
+
+' ═════════════════════════════════════════════════════
+' PHẦN 6: Sơ đồ mạch điện breadboard
+' ═════════════════════════════════════════════════════
+
+@startuml
+!theme plain
+skinparam backgroundColor #FEFEFE
+title SƠ ĐỒ ĐẤU DÂY ESP32 - BREADBOARD
+
+component "ESP32 DevKit V1" as esp {
+  portin "GPIO 32" as p32
+  portin "GPIO 14" as p14
+  portin "GPIO 12" as p12
+  portin "GPIO 25" as p25
+  portin "GPIO 33" as p33
+  portin "GPIO 13" as p13
+  portin "GPIO 19" as p19
+  portin "GPIO 34 (ADC)" as p34
+  portin "GPIO 35 (ADC)" as p35
+  portin "GPIO 26" as p26
+  portin "GPIO 27" as p27
+  portin "5V" as p5v
+  portin "3.3V" as p33v
+  portin "GND" as pgnd
+}
+
+package "Thiết bị ngõ ra" as outputs {
+  component "LED TRẮNG #1\n(Phòng khách)" as led1
+  component "LED TRẮNG #2\n(Bếp)" as led2
+  component "LED TRẮNG #3\n(Quạt)" as led3
+  component "LED XANH\n(Bình thường)" as ledx
+  component "LED ĐỎ\n(Rò rỉ)" as ledd
+  component "RELAY\n(Ngắt tải)" as relay
+  component "BUZZER\n(Còi báo)" as buzz
+}
+
+package "Thiết bị ngõ vào" as inputs {
+  component "ZCT SCT013\n(Cảm biến dòng)" as zct
+  component "BIẾN TRỞ 10kΩ\n(Chỉnh mức rò)" as pot
+  component "NÚT NHẤN RÒ RỈ\n(Pull-down 10k)" as btn1
+  component "NÚT NHẤN RESET\n(Pull-down 10k)" as btn2
+}
+
+package "Nguồn" as psu {
+  component "ADAPTER 12V\nDC 1A" as adp
+  component "DC-DC LM2596\n12V → 5V" as dcdc
+}
+
+' Kết nối đèn
+p32 -[#red]-down-> led1 : +220Ω
+p14 -[#red]-down-> led2 : +220Ω
+p12 -[#red]-down-> led3 : +220Ω
+p25 -[#green]-down-> ledx : +220Ω
+p33 -[#red]-left-> ledd : +220Ω
+
+' Kết nối ngõ ra
+p26 -down-> relay
+p27 -down-> buzz
+
+' Kết nối ngõ vào
+p34 -down-> zct
+p35 -down-> pot
+p13 -down-> btn1
+p19 -down-> btn2
+
+' Nguồn
+adp -right-> dcdc : 12V
+dcdc -right-> p5v : 5V
+dcdc --> pgnd
+
+p33v -down-> pot : VCC
+p33v -down-> zct : (nếu cần)
+
+@enduml

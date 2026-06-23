@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Cảnh báo Rò rỉ Điện</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>&#9888; Hệ thống Cảnh báo Rò rỉ Điện năng</h1>
+        <div class="status">
+            <span class="status-dot disconnected" id="wsStatus"></span>
+            <span id="wsStatusText">Đang kết nối...</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row row-cols-4">
+            <div class="card">
+                <h3>Thiết bị</h3>
+                <div class="value" id="currentDevice">---</div>
+            </div>
+            <div class="card">
+                <h3>Dòng rò hiện tại</h3>
+                <div>
+                    <span class="value success" id="currentLeakage">0.0</span>
+                    <span class="unit" id="currentUnit">mA</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Ngưỡng an toàn</h3>
+                <div>
+                    <span class="value">30.0</span>
+                    <span class="unit">mA</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Trạng thái Relay</h3>
+                <div id="relayStatus"><span class="badge badge-success">ĐÓNG</span></div>
+            </div>
+        </div>
+
+        <div class="row row-cols-2">
+            <div class="card">
+                <h3>Biểu đồ dòng rò thời gian thực</h3>
+                <div class="chart-container">
+                    <canvas id="leakageChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Thông số hệ thống</h3>
+                <table>
+                    <tr><td>Ngưỡng cảnh báo:</td><td><strong>30 mA</strong></td></tr>
+                    <tr><td>Chu kỳ gửi dữ liệu:</td><td><strong>1 giây</strong></td></tr>
+                    <tr><td>Giao thức truyền:</td><td><strong>HTTP REST + WebSocket</strong></td></tr>
+                    <tr><td>Cơ sở dữ liệu:</td><td><strong>MySQL</strong></td></tr>
+                    <tr><td>Trạng thái Edge:</td><td><span class="badge badge-success">BÌNH THƯỜNG</span></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Lịch sử cảnh báo</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Thiết bị</th>
+                        <th>Dòng rò</th>
+                        <th>Trạng thái</th>
+                        <th>Thời gian</th>
+                    </tr>
+                </thead>
+                <tbody id="alertTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="alert-overlay" id="alertOverlay">
+        <div class="card alert-modal">
+            <div class="modal-header">
+                <h2>&#9888; RÒ RỈ ĐIỆN PHÁT HIỆN!</h2>
+            </div>
+            <div class="modal-body">
+                <div class="info-row"><span>Thiết bị</span><strong id="modalDeviceId">---</strong></div>
+                <div class="info-row"><span>Dòng rò</span><strong id="modalLeakage">---</strong></div>
+                <div class="info-row"><span>Ngưỡng</span><strong id="modalThreshold">30.0 mA</strong></div>
+                <div class="info-row"><span>Mức độ</span><strong id="modalSeverity">---</strong></div>
+                <div class="info-row"><span>Thời gian</span><strong id="modalTime">---</strong></div>
+                <button class="btn btn-primary" id="dismissBtn" style="width:100%">XÁC NHẬN</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn btn-primary alert-sound-toggle" id="soundToggle">Âm thanh: ON</button>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
