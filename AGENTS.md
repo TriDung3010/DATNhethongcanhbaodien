@@ -48,11 +48,11 @@ D:\DATNcanhbaodien\
 |------|---------|---------|
 | 34 | ZCT (cảm biến dòng) | ADC - đọc dòng rò thật |
 | 35 | Biến trở 10kΩ | ADC - giả lập mức rò 0-100mA |
-| 26 | Relay | Ngắt tải khi rò rỉ |
-| 27 | Buzzer (KY-012 active) | Còi báo (HIGH = kêu) |
+| 26 | Relay | Ngắt tải (Mô-tơ Quạt) khi rò rỉ |
+| 27 | Buzzer (KY-012 active) | Còi báo (Nguồn 3.3V, Active LOW) |
 | 32 | LED trắng #1 | Đèn phòng khách |
 | 14 | LED trắng #2 | Đèn bếp |
-| 12 | LED trắng #3 | Quạt (hoặc motor nhỏ) |
+| 12 | (Bỏ trống) | Từng là Quạt (nay Quạt đã chuyển sang Relay) |
 | 25 | LED xanh | Trạng thái BÌNH THƯỜNG |
 | 33 | LED đỏ | Trạng thái RÒ RỈ |
 | 13 | Nút nhấn RÒ RỈ | INPUT_PULLUP, toggle simulate |
@@ -98,6 +98,14 @@ Hoặc chạy `start.bat` để làm hết 1 lần.
 ## Firmware Logic (Edge Alert)
 
 1. Loop 200ms:
+
+## Lưu ý phần cứng (Thiết kế chống nóng ESP32)
+
+- Hệ thống sử dụng 2 trạm nguồn độc lập trên Breadboard:
+  - **Trạm 5V (Dải đỏ TRÁI):** Lấy điện từ module LM2596. Cấp nguồn cho **Relay**, và cấp vào chân **V5** để nuôi ESP32.
+  - **Trạm 3.3V (Dải đỏ PHẢI):** Lấy điện từ chân **3V3** của ESP32 nhả ra. Cấp nguồn cho **OLED, Biến trở, và Còi Buzzer** (còi dùng 3.3V để không bị hú liên tục do chênh lệch áp với tín hiệu 3.3V của ESP32).
+  - **Trạm Mass (Dải xanh 2 BÊN):** Nối chung toàn bộ GND của LM2596, ESP32 và các linh kiện.
+- **Mô-tơ Quạt (Tải):** Được cấp nguồn 5V nối tiếp qua cổng NO/NC của cục Relay, tuyệt đối không cắm trực tiếp vào ESP32 (tránh cháy chip).
    - `readButtons()` — nút RÒ RỈ toggle simulate, nút RESET clear
    - `readLeakageCurrent()` — nếu simulate thì đọc biến trở, nếu không thì đọc ZCT
    - `processAlert()` — nếu >= 30mA: ngắt relay, tắt LED, bật alert. Nếu < 30mA: đóng relay, bật LED
