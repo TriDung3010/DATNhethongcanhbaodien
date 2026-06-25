@@ -1,251 +1,82 @@
-# HƯỚNG DẪN LẮP RÁP & VẬN HÀNH
-## Hệ thống Cảnh báo Rò rỉ Điện năng
+# HƯỚNG DẪN LẮP RÁP & VẬN HÀNH (BẢN CHUẨN MỚI NHẤT)
+## Giai đoạn 1: Mô hình thu nhỏ (Dùng Biến trở mô phỏng rò rỉ)
 
 ---
 
-## 1. SƠ ĐỒ CHÂN GPIO (ESP32 DevKit V1)
+## 1. DANH SÁCH CHÂN GPIO (ESP32 DevKit V1 38-Pin)
+Trong cấu hình hiện tại, chúng ta sử dụng các chân sau:
 
-```
-ESP32               | Thiết bị           | Ghi chú
-─────────────────────┼────────────────────┼─────────────────
-GPIO 32  ──────────── LED trắng #1        Đèn phòng khách
-GPIO 14  ──────────── LED trắng #2        Đèn bếp
-GPIO 12  ──────────── LED trắng #3        Quạt (hoặc motor nhỏ)
-GPIO 25  ──────────── LED xanh            Trạng thái BÌNH THƯỜNG
-GPIO 33  ──────────── LED đỏ              Trạng thái RÒ RỈ
+| ESP32 | Thiết bị kết nối | Ghi chú |
+| :--- | :--- | :--- |
+| **G32** | Đèn LED Trắng | Đèn sinh hoạt (sáng khi an toàn) |
+| **G25** | Đèn LED Xanh | Đèn báo hiệu hệ thống bình thường |
+| **G33** | Đèn LED Đỏ | Đèn cảnh báo sự cố rò rỉ |
+| **G35** | Biến trở (Núm vặn) | Mô phỏng dòng rò rỉ (0 - 100mA) |
+| **G26** | Cục Relay | Ngắt điện khi có sự cố |
+| **G27** | Còi Buzzer | Hú báo động khi rò rỉ |
+| **G22** | Màn hình OLED (SCK) | Tín hiệu Clock cho OLED |
+| **G21** | Màn hình OLED (SDA) | Tín hiệu Data cho OLED |
 
-GPIO 13  ──────────── Nút nhấn RÒ RỈ      Nhấn để mô phỏng rò rỉ
-GPIO 19  ──────────── Nút nhấn RESET      Nhấn để reset
+---
 
-GPIO 34  ──────────── ZCT (cảm biến dòng) Đo dòng rò thực tế
-GPIO 35  ──────────── Biến trở 10kΩ       Chỉnh mức rò 0-100mA
+## 2. QUY TRÌNH LẮP RÁP PHẦN CỨNG
 
-GPIO 26  ──────────── Relay               Ngắt điện thiết bị
-GPIO 27  ──────────── Buzzer              Còi báo động
-2        ──────────── LED (trên board)     Nhấp nháy khi báo động
-```
+> [!WARNING]
+> **QUAN TRỌNG VỀ BREADBOARD:** Bảng trắng (Breadboard) 830 lỗ thường bị đứt đôi mạch điện ở giữa (ngay vạch số 30). Bạn BẮT BUỘC phải dùng 4 cọng dây cắm "bắc cầu" nối liền 2 dải Đỏ và 2 dải Xanh ở giữa bảng để toàn bộ bảng được thông điện.
 
-## 2. ĐẤU DÂY BREADBOARD (TỪNG BƯỚC)
+> [!CAUTION]
+> **CẤP NGUỒN NGOÀI BẰNG MẠCH GIẢM ÁP LM2596:** 
+> Phải dùng đồng hồ VOM đo và vặn ốc chỉnh ngõ ra của LM2596 về đúng **5.0V** TRƯỚC KHI cắm vào ESP32. Nếu để nguyên 12V cắm vào, ESP32 sẽ cháy ngay lập tức.
 
-### Bước 1: Cấp nguồn cho ESP32
+Để xem hình ảnh trực quan từng đường dây vuông góc và Thẻ hướng dẫn từng linh kiện, hãy mở 2 file sau bằng trình duyệt Web:
+1. `so-do-thuc-te.html`: Bản đồ đi dây tổng thể toàn hệ thống.
+2. `huong-dan-cam-day-chi-tiet.html`: Thẻ hướng dẫn cắm dây cho từng linh kiện.
 
-```
-Adapter 12V DC ──┬── Jack DC (cái)
-                 │
-            [DC-DC LM2596]
-            Input: 12V    Output: 5V
-                 │
-                 └── 5V (+) ──→ ESP32 5V pin
-                     GND   ──→ ESP32 GND pin
-```
+### Các bước cắm dây tóm tắt:
+1. **Nguồn tổng:** 
+   - `OUT+` (LM2596) ──▶ Lỗ `V5` (ESP32)
+   - `OUT-` (LM2596) ──▶ Lỗ `GND` (ESP32)
+   - Lỗ `3V3` (ESP32) ──▶ Dải Đỏ Breadboard (Tạo trạm nguồn 3.3V)
+   - Lỗ `GND` (ESP32) ──▶ Dải Xanh Breadboard (Tạo trạm Mass chung)
+2. **OLED:** VDD ──▶ Dải Đỏ, GND ──▶ Dải Xanh, SCK ──▶ G22, SDA ──▶ G21.
+3. **Biến trở:** Râu trái ──▶ Dải Đỏ, Râu phải ──▶ Dải Xanh, Chân giữa ──▶ G35.
+4. **Relay:** DC+ ──▶ V5 (ESP32), DC- ──▶ Dải Xanh, IN1 ──▶ G26.
+5. **Còi:** VCC ──▶ V5 (ESP32), GND ──▶ Dải Xanh, I/O ──▶ G27.
+6. **LED (Đỏ/Xanh/Trắng):** Chân Dài (+) qua điện trở 220Ω cắm vào đinh ESP32 (G33/G25/G32), Chân Ngắn (-) cắm Dải Xanh.
 
-1. Cắm jack DC vào adapter 12V
-2. Đấu đầu ra jack DC vào input DC-DC LM2596 (IN+/IN-)
-3. Chỉnh biến trở trên LM2596 để output ra đúng 5V
-4. Đấu output LM2596 (OUT+/OUT-) vào ESP32 (5V và GND)
+---
 
-### Bước 2: LED thiết bị (LED trắng)
+## 3. CÀI ĐẶT PHẦN MỀM & NẠP CODE
 
-Mỗi LED cần **1 điện trở 220Ω nối tiếp** (hạn dòng ~10-15mA).
+### Bước 1: Cài thư viện OLED
+1. Mở Arduino IDE.
+2. Chọn menu **Sketch -> Include Library -> Manage Libraries...**
+3. Tìm và cài đặt `Adafruit GFX Library`.
+4. Tìm và cài đặt `Adafruit SSD1306`.
 
-```
-GPIO 32 ──→ 220Ω ──→ LED#1 (+) ──→ LED#1 (-) ──→ GND
-GPIO 14 ──→ 220Ω ──→ LED#2 (+) ──→ LED#2 (-) ──→ GND
-GPIO 12 ──→ 220Ω ──→ LED#3 (+) ──→ LED#3 (-) ──→ GND
-```
+### Bước 2: Nạp Firmware
+1. Rút cáp nguồn 12V ra khỏi LM2596 (để an toàn cho máy tính).
+2. Cắm cáp USB từ máy tính vào ESP32.
+3. Mở file `esp32_firmware_arduino/esp32_firmware_arduino.ino`.
+4. Chọn đúng Board (`ESP32 Dev Module`) và Port (`COMx`).
+5. Bấm nút **Upload**. Đợi báo "Done uploading".
+6. Sau khi nạp xong, màn hình OLED sẽ sáng lên và hiển thị thông số dòng rò.
 
-### Bước 3: LED trạng thái (xanh + đỏ)
+---
 
-```
-GPIO 25 ──→ 220Ω ──→ LED xanh (+) ──→ LED xanh (-) ──→ GND
-GPIO 33 ──→ 220Ω ──→ LED đỏ (+)   ──→ LED đỏ (-)   ──→ GND
-```
+## 4. VẬN HÀNH & KIỂM TRA
 
-### Bước 4: Nút nhấn
-
-Mỗi nút cần **1 điện trở pull-down 10kΩ** xuống GND.
-
-```
-                ┌──── Nút ────┐
-               (+)           (-)
-GPIO 13 ────────┤              ├────────────── GND
-                │              │
-                └── 10kΩ ──────┘
-                    ↓ GND
-```
-
-Tương tự cho GPIO 19 (nút RESET).
-
-### Bước 5: Biến trở Potentiometer 10kΩ
-
-```
-Chân 1 (bên trái)  ──→ 3.3V
-Chân 2 (giữa)       ──→ GPIO 35
-Chân 3 (bên phải)   ──→ GND
-```
-
-### Bước 6: ZCT (SCT013)
-
-```
-ZCT Jack ──┬── Dây tín hiệu ──→ GPIO 34
-           ├── Dây GND       ──→ GND
-           │
-           [Luồn dây nguồn qua lõi ZCT]
-           Dây L và N đều đi qua lỗ ZCT
-```
-
-### Bước 7: Relay
-
-```
-GPIO 26 ──→ Relay IN
-Relay VCC ──→ 5V
-Relay GND ──→ GND
-
-Relay COM ──→ Dây (+) 12V từ adapter
-Relay NO  ──→ Cấp nguồn 12V cho thiết bị
-```
-
-### Bước 8: Buzzer (KY-012 active)
-
-```
-GPIO 27 ──→ Buzzer (+) (S)
-Buzzer (-) ──→ GND (-)
-```
-
-### Bước 9: Motor DC (quạt/máy giặt)
-
-```
-Motor (+) ──→ Relay NO (cùng nhánh nguồn 12V với LED)
-Motor (-) ──→ GND
-```
-
-## 3. SƠ ĐỒ TỔNG THỂ (NHÌN TỪ TRÊN XUỐNG)
-
-```
-┌──────────────────────────────────────────────────────────┐
-│                     BREADBOARD                           │
-│                                                          │
-│  ┌──────────────────────────────────────────────────┐   │
-│  │  ESP32 DevKit V1                                 │   │
-│  │  ┌─┐ ┌─┐ ┌─┐ ┌─┐ ...                          │   │
-│  │  │3│ │3│ │1│ │1│ ...                          │   │
-│  │  │2│ │3│ │2│ │4│ ...                          │   │
-│  │  └─┘ └─┘ └─┘ └─┘                              │   │
-│  └──────────────┬───────────────────────────────────┘   │
-│                  │                                       │
-│  ┌─────┐ ┌─────┐ │ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐   │
-│  │LED#1│ │LED#2│ │ │LED#3│ │XANH │ │ ĐỎ  │ │Motor│   │
-│  │(PK) │ │(Bếp)│ │ │(Quạt)│ │     │ │     │ │     │   │
-│  └─────┘ └─────┘ │ └─────┘ └─────┘ └─────┘ └─────┘   │
-│                  │                                       │
-│       ┌─────┐ ┌──┴──┐ ┌─────┐ ┌────────┐ ┌────────┐  │
-│       │Nút  │ │Nút  │ │Biến  │ │Relay   │ │Buzzer  │  │
-│       │RÒ RỈ│ │RESET│ │trở   │ │Module  │ │(KX-012)│  │
-│       └─────┘ └─────┘ └─────┘ └────────┘ └────────┘  │
-│                                                          │
-│  ┌──────────────────────────────────────────────────┐   │
-│  │  NGUỒN: DC-DC LM2596 + Adapter 12V               │   │
-│  │  [DC-DC] ── 5V ──→ ESP32                         │   │
-│  │         ── 12V ──→ Relay COM                     │   │
-│  └──────────────────────────────────────────────────┘   │
-│                                                          │
-└──────────────────────────────────────────────────────────┘
-```
-
-## 4. CẤU HÌNH FIRMWARE
-
-### Bước 10: Sửa file config.h
-
-Mở `esp32_firmware_arduino/config.h`, **bắt buộc sửa**:
-
-```c
-#define WIFI_SSID              "ten_wifi_nha_anh"     // ← Sửa
-#define WIFI_PASSWORD          "mat_khau_wifi"         // ← Sửa
-#define SERVER_URL             "http://192.168.1.x:8080/api/v1/sensor-data" // ← Sửa IP
-#define DEVICE_ID              "ESP32_NHA_MO_HINH"
-```
-
-**Cách tìm IP máy tính (chạy backend):**
-```bash
-# Mở CMD, gõ:
-ipconfig
-# Tìm dòng IPv4 Address của WiFi (VD: 192.168.1.5)
-```
-
-### Bước 11: Cài Arduino IDE + ESP32 board
-
-1. Mở Arduino IDE → **File** → **Preferences**
-2. Thêm URL vào "Additional Boards Manager URLs":
-   ```
-   https://espressif.github.io/arduino-esp32/package_esp32_index.json
-   ```
-3. **Tools** → **Board** → **Boards Manager** → tìm "ESP32" → Install
-4. Chọn board: **ESP32 Dev Module**
-
-### Bước 12: Nạp firmware
-
-1. Cắm ESP32 qua USB
-2. **Tools** → **Port** → chọn COM (VD: COM3)
-3. Nhấn **Upload** (→)
-4. Nếu lỗi "Failed to connect", giữ nút **BOOT** trên ESP32, nhấn **EN**, thả BOOT → Upload lại
-5. Mở **Serial Monitor** (Tools → Serial Monitor) → **115200 baud**
-
-## 5. KHỞI ĐỘNG HỆ THỐNG
-
-### Bước 13: Khởi động MySQL
-
-```bash
-# Mở CMD với quyền Admin
-"C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld" --datadir="C:\ProgramData\MySQL\MySQL Server 8.4\Data"
-```
-
-### Bước 14: Khởi động Backend
-
-```bash
-cd D:\DATNcanhbaodien\backend_springboot
-mvn spring-boot:run
-```
-
-### Bước 15: Khởi động Dashboard
-
-```bash
-cd D:\DATNcanhbaodien\frontend_dashboard
-node server.js
-```
-
-### Bước 16: Mở trình duyệt
-
-Vào: `http://localhost:3000`
-
-## 6. KIỂM TRA & DEMO
-
-### Kịch bản 1: Bình thường
-- ESP32 kết nối WiFi → Serial hiện "WiFi OK! IP: xxx"
-- Backend nhận data 3 giây/lần
-- Dashboard: hiển thị dòng rò ~0 mA, LED xanh, "BÌNH THƯỜNG"
-
-### Kịch bản 2: Giả lập rò rỉ
-- Xoay biến trở (Pot) để đặt mức rò
-- Nhấn nút **RÒ RỈ** trên breadboard
-- Quan sát:
-  - LED đỏ nhấp nháy
-  - Buzzer kêu beep beep
-  - Relay ngắt → LED trắng + motor tắt
-  - Dashboard: popup đỏ + âm thanh + "Đã ngắt tải"
-
-### Kịch bản 3: Reset
-- Nhấn nút **RESET**
-- Relay đóng → LED trắng sáng lại
-- Dashboard về trạng thái bình thường
-
-## 7. XỬ LÝ LỖI THƯỜNG GẶP
-
-| Lỗi | Nguyên nhân | Cách xử lý |
-|------|------------|-------------|
-| "Failed to connect" khi upload | ESP32 ở chế độ download | Giữ BOOT + nhấn EN |
-| Serial ra ký tự lạ | Baud rate sai | Set Serial Monitor 115200 |
-| WiFi không kết nối | Sai SSID/password | Kiểm tra config.h |
-| Server trả lỗi | MySQL chưa chạy | Chạy mysqld trước |
-| ZCT đọc 0 mA | Chưa luồn dây qua lõi | Luồn 2 dây L+N qua lỗ ZCT |
-| LED quá mờ | Thiếu điện trở 220Ω | Kiểm tra lại mạch LED |
-| Dashboard không load | Node server chưa chạy | `node server.js` |
+1. Rút cáp USB máy tính ra. Cấp nguồn 12V vào mạch LM2596 để hệ thống chạy độc lập.
+2. **Trạng thái Bình Thường:**
+   - Màn hình OLED hiển thị `AN TOAN`, dòng rò ~ 0.0mA.
+   - Đèn LED Trắng sáng, LED Xanh sáng.
+   - Relay đóng (có tiếng tạch).
+3. **Mô phỏng Rò rỉ:**
+   - Vặn từ từ núm Biến trở. Màn hình OLED sẽ nhảy số mA tăng dần.
+   - Khi vượt quá **30.0mA**:
+     - Màn hình chớp nháy `NGUY HIEM!`.
+     - Còi Buzzer hú tít tít.
+     - LED Đỏ sáng lên (LED Xanh và Trắng tắt).
+     - Relay ngắt cái "tạch".
+4. **Hết Rò rỉ:**
+   - Vặn núm Biến trở ngược lại về 0. Hệ thống tự động đóng Relay và khôi phục trạng thái AN TOÀN.

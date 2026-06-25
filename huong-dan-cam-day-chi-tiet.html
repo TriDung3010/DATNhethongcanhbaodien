@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sơ Đồ Cắm Dây Rút Gọn</title>
+<style>
+    body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: #0f172a;
+        color: #f8fafc;
+        margin: 0;
+        padding: 30px;
+    }
+    h1 {
+        text-align: center;
+        color: #38bdf8;
+        font-size: 28px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+    p.subtitle {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 16px;
+        margin-bottom: 40px;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        border-color: #38bdf8;
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 15px;
+    }
+    .emoji {
+        font-size: 32px;
+        background: #0f172a;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+    .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin: 0;
+    }
+    .card-desc {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 5px 0 0 0;
+    }
+    .connection {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #0f172a;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
+    .pin-source {
+        font-weight: bold;
+        color: #cbd5e1;
+        width: 40%;
+    }
+    .wire-path {
+        color: #64748b;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .pin-target {
+        font-weight: bold;
+        color: #38bdf8;
+        width: 30%;
+        text-align: right;
+        font-size: 18px;
+    }
+    .highlight-red { color: #ef4444 !important; }
+    .highlight-green { color: #22c55e !important; }
+    .highlight-yellow { color: #facc15 !important; }
+    .highlight-purple { color: #a855f7 !important; }
+    
+    .alert-box {
+        background: #7f1d1d;
+        border: 2px dashed #ef4444;
+        border-radius: 12px;
+        padding: 20px;
+        max-width: 1160px;
+        margin: 0 auto 30px auto;
+        text-align: center;
+    }
+    .alert-box h3 { margin: 0 0 10px 0; color: #fca5a5; }
+    .alert-box p { margin: 0; color: #fee2e2; font-size: 16px;}
+</style>
+</head>
+<body>
+
+<h1>CẨM NANG CẮM DÂY TỪNG LINH KIỆN</h1>
+<p class="subtitle">Bỏ qua sơ đồ ngoằn ngoèo, anh chỉ cần cầm từng linh kiện lên và cắm dây theo đúng bảng bên dưới!</p>
+
+<div class="alert-box">
+    <h3>⚠️ QUY HOẠCH 2 TRẠM NGUỒN (GIÚP ESP32 KHÔNG BỊ NÓNG)</h3>
+    <p style="text-align: left; display: inline-block; margin: 0 auto; line-height: 1.6;">
+    Ở trên Breadboard của anh, hãy quy định 2 bên như sau:<br>
+    ✅ <b>Dải Đỏ BÊN TRÁI (Trạm 5V):</b> Cắm dây 5V từ LM2596 vào đây. Sau đó cắm 1 dây từ Dải Đỏ Trái nối vào lỗ <b>V5</b> của ESP32.<br>
+    ✅ <b>Dải Đỏ BÊN PHẢI (Trạm 3.3V):</b> Cắm 1 dây từ lỗ <b>3V3</b> của ESP32 sang đây.<br>
+    ✅ <b>Dải Xanh HAI BÊN (Trạm Mass):</b> Cắm dây Mass từ LM2596 vào Dải Xanh Trái, rồi lấy 1 dây nối Dải Xanh Trái sang Dải Xanh Phải.<br>
+    <i>📌 Tóm lại: Còi, Relay ăn điện ở Trái (5V). OLED, Biến trở ăn điện ở Phải (3.3V). Các chân GND cứ cắm vào Dải Xanh.</i></p>
+</div>
+
+<div class="grid">
+
+    <!-- BIẾN TRỞ -->
+    <div class="card">
+        <div class="card-header">
+            <div class="emoji">🎛️</div>
+            <div>
+                <h3 class="card-title">Núm vặn Biến trở</h3>
+                <p class="card-desc">Cảm biến dòng rò mô phỏng</p>
+            </div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân Râu Trái</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target highlight-red">Dải Đỏ (PHẢI)</div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân Râu Phải</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target">Dải Xanh (-)</div>
+        </div>
+        <div class="connection" style="border: 1px solid #06b6d4;">
+            <div class="pin-source highlight-yellow">Chân Giữa</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target" style="color: #06b6d4">Đinh G35</div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH OLED -->
+    <div class="card">
+        <div class="card-header">
+            <div class="emoji">📺</div>
+            <div>
+                <h3 class="card-title">Màn hình OLED</h3>
+                <p class="card-desc">Hiển thị thông số (loại 4 chân I2C)</p>
+            </div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân VCC / VDD</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target highlight-red">Dải Đỏ (PHẢI)</div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân GND</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target">Dải Xanh (-)</div>
+        </div>
+        <div class="connection" style="border: 1px solid #facc15;">
+            <div class="pin-source highlight-yellow">Chân SCL / SCK</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target highlight-yellow">Đinh G22</div>
+        </div>
+        <div class="connection" style="border: 1px solid #38bdf8;">
+            <div class="pin-source" style="color: #38bdf8">Chân SDA</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target">Đinh G21</div>
+        </div>
+    </div>
+
+    <!-- NGUỒN NGOÀI LM2596 -->
+    <div class="card" style="border: 2px solid #f59e0b; background: #451a03;">
+        <div class="card-header" style="border-bottom-color: #f59e0b;">
+            <div class="emoji">⚡</div>
+            <div>
+                <h3 class="card-title" style="color: #fcd34d;">Nguồn Ngoài (LM2596)</h3>
+                <p class="card-desc" style="color: #fde68a;">Mạch giảm áp từ 12V xuống 5V</p>
+            </div>
+        </div>
+        <div style="font-size: 13px; color: #fecaca; text-align: center; margin-bottom: 15px; font-weight: bold;">
+            ⚠️ BẮT BUỘC DÙNG ĐỒNG HỒ ĐO ĐIỆN VẶN ỐC TRÊN MẠCH LM2596 ĐỂ CHỈNH ĐÚNG 5V RỒI MỚI ĐƯỢC CẮM VÀO ESP32 (NẾU KHÔNG SẼ CHÁY MẠCH).
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân IN+ và IN-</div>
+            <div class="wire-path">◀────▶</div>
+            <div class="pin-target" style="color: #fcd34d;">Adapter 12V</div>
+        </div>
+        <div class="connection">
+            <div class="pin-source highlight-red">Chân OUT+ (5V)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target highlight-red">Dải Đỏ (TRÁI)</div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân OUT- (Mass)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target">Đinh GND (ESP32)</div>
+        </div>
+    </div>
+
+    <!-- CÒI BUZZER -->
+    <div class="card">
+        <div class="card-header">
+            <div class="emoji">🚨</div>
+            <div>
+                <h3 class="card-title">Còi Buzzer báo động</h3>
+                <p class="card-desc">Kêu tít tít khi có rò rỉ</p>
+            </div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân VCC (+)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target highlight-red">Dải Đỏ (PHẢI)</div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân GND (-)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target">Dải Xanh (-)</div>
+        </div>
+        <div class="connection" style="border: 1px solid #ea580c;">
+            <div class="pin-source" style="color: #ea580c">Chân I/O (Tín hiệu)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target" style="color: #ea580c">Đinh G27</div>
+        </div>
+    </div>
+
+    <!-- CỤC RELAY -->
+    <div class="card">
+        <div class="card-header">
+            <div class="emoji">🔌</div>
+            <div>
+                <h3 class="card-title">Cục Relay (Cầu dao)</h3>
+                <p class="card-desc">Ngắt điện khi nguy hiểm</p>
+            </div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân VCC / DC+</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target highlight-red">Dải Đỏ (TRÁI)</div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân GND / DC-</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target">Dải Xanh (-)</div>
+        </div>
+        <div class="connection" style="border: 1px solid #a855f7;">
+            <div class="pin-source" style="color: #a855f7">Chân IN (Tín hiệu)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target highlight-purple">Đinh G26</div>
+        </div>
+    </div>
+
+    <!-- LED TRẮNG -->
+    <div class="card">
+        <div class="card-header">
+            <div class="emoji">💡</div>
+            <div>
+                <h3 class="card-title">Đèn LED Trắng</h3>
+                <p class="card-desc">Mô phỏng Đèn phòng khách</p>
+            </div>
+        </div>
+        <div class="connection" style="border: 1px solid #f8fafc;">
+            <div class="pin-source">Chân DÀI (+)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target" style="color: #f8fafc">Đinh G32</div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân NGẮN (-)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target">Dải Xanh (-)</div>
+        </div>
+        <div style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 10px;">
+            * Lưu ý: Cắm qua điện trở 220Ω vào chân DÀI để khỏi cháy LED.
+        </div>
+    </div>
+
+    <!-- LED ĐỎ -->
+    <div class="card">
+        <div class="card-header">
+            <div class="emoji">🔴</div>
+            <div>
+                <h3 class="card-title">Đèn LED Đỏ</h3>
+                <p class="card-desc">Đèn báo hiệu Nguy Hiểm</p>
+            </div>
+        </div>
+        <div class="connection" style="border: 1px solid #ef4444;">
+            <div class="pin-source highlight-red">Chân DÀI (+)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target highlight-red">Đinh G33</div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân NGẮN (-)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target">Dải Xanh (-)</div>
+        </div>
+    </div>
+
+    <!-- LED XANH -->
+    <div class="card">
+        <div class="card-header">
+            <div class="emoji">🟢</div>
+            <div>
+                <h3 class="card-title">Đèn LED Xanh</h3>
+                <p class="card-desc">Đèn báo hiệu An Toàn</p>
+            </div>
+        </div>
+        <div class="connection" style="border: 1px solid #22c55e;">
+            <div class="pin-source highlight-green">Chân DÀI (+)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target highlight-green">Đinh G25</div>
+        </div>
+        <div class="connection">
+            <div class="pin-source">Chân NGẮN (-)</div>
+            <div class="wire-path">────▶</div>
+            <div class="pin-target">Dải Xanh (-)</div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

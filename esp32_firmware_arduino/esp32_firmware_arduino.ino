@@ -12,6 +12,14 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include "config.h"
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // ─── Chân GPIO mô hình nhà ──────────────────────────
 #define PIN_LED_DEN1     32     // Thiết bị 1 (đèn phòng khách)
@@ -29,7 +37,7 @@
 float leakageCurrentMA = 0.0;
 bool alertActive = false;
 bool relayOn = true;
-bool simulateLeak = false;
+bool simulateLeak = true;
 unsigned long lastSendTime = 0;
 unsigned long lastBuzzerToggle = 0;
 bool buzzerState = false;
@@ -140,17 +148,19 @@ void processAlert(float currentMA) {
     }
 }
 
-// ─── Điều khiển Buzzer (nhấp nháy khi cảnh báo) ────
+// ─── Điều khiển Buzzer (nhịp báo động chớp kép) ────
 void controlBuzzer() {
     if (alertActive) {
         unsigned long now = millis();
-        if (now - lastBuzzerToggle >= 300) {
-            buzzerState = !buzzerState;
-            digitalWrite(PIN_BUZZER, buzzerState ? HIGH : LOW);
-            lastBuzzerToggle = now;
+        // Tạo chu kỳ 800ms: Bíp (100ms) - Tắt (100ms) - Bíp (100ms) - Tắt (500ms)
+        int cycleTime = now % 800;
+        if (cycleTime < 100 || (cycleTime >= 200 && cycleTime < 300)) {
+            digitalWrite(PIN_BUZZER, LOW); // LOW là còi kêu (đối với còi Active LOW)
+        } else {
+            digitalWrite(PIN_BUZZER, HIGH); // HIGH là còi tắt
         }
     } else {
-        digitalWrite(PIN_BUZZER, LOW);
+        digitalWrite(PIN_BUZZER, HIGH); // HIGH là tắt còi hoàn toàn
     }
 }
 
@@ -212,7 +222,10 @@ void sendDataToServer() {
 
 // ─── In thông số ra Serial ─────────────────────────
 void printStatus() {
-    Serial.print("Dong ro: ");
+    int rawPot = analogRead(PIN_POT);
+    Serial.print("[Gia tri Volume RAW: ");
+    Serial.print(rawPot);
+    Serial.print("] Dong ro: ");
     Serial.print(leakageCurrentMA, 1);
     Serial.print(" mA | ");
     Serial.print(alertActive ? "CANH BAO!" : "Binh thuong");
@@ -220,6 +233,38 @@ void printStatus() {
     Serial.print(relayOn ? "DONG  " : "NGAT  ");
     Serial.print(" | Simulate: ");
     Serial.println(simulateLeak ? "BAT" : "TAT");
+}
+
+// ─── Cập nhật màn hình OLED ────────────────────────
+void updateOLED() {
+    display.clearDisplay();
+    
+    // Tiêu đề
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 0);
+    display.print("DONG RO RI:");
+
+    // Giá trị dòng rò lớn ở giữa
+    display.setTextSize(3);
+    display.setCursor(15, 15);
+    display.print(leakageCurrentMA, 1);
+    display.setTextSize(1);
+    display.print("mA");
+
+    // Trạng thái dưới đáy
+    display.setTextSize(2);
+    display.setCursor(0, 45);
+    if (alertActive) {
+        // Nhấp nháy cảnh báo
+        if ((millis() / 300) % 2 == 0) {
+            display.print("NGUY HIEM!");
+        }
+    } else {
+        display.print("AN TOAN");
+    }
+
+    display.display();
 }
 
 // ===================================================
@@ -254,6 +299,20 @@ void setup() {
     digitalWrite(PIN_LED_DO, LOW);
 
     analogReadResolution(12);
+    
+    // Khởi tạo OLED (địa chỉ I2C 0x3C)
+    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+        Serial.println("Loi khoi tao OLED!");
+    } else {
+        display.clearDisplay();
+        display.setTextSize(1);
+        display.setTextColor(SSD1306_WHITE);
+        display.setCursor(0, 20);
+        display.println(" He Thong Canh Bao");
+        display.println("   Dang khoi dong...");
+        display.display();
+    }
+
     connectWiFi();
 
     // Bật đèn lên
@@ -278,6 +337,7 @@ void loop() {
     processAlert(leakageCurrentMA);
     controlBuzzer();
     printStatus();
+    updateOLED();
 
     unsigned long now = millis();
     if (now - lastSendTime >= SEND_INTERVAL_MS) {
