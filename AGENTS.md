@@ -2,41 +2,41 @@
 
 ## Tổng quan
 Đồ án tốt nghiệp: Hệ thống IoT phát hiện và cảnh báo rò rỉ điện năng.
-ESP32 đọc dòng rò (ZCT) → nếu vượt 30mA → ngắt relay + báo buzzer + gửi JSON lên Spring Boot → push WebSocket → Dashboard real-time.
+ESP32 đọc dòng rò (ZCT/Biến trở) → nếu vượt 30mA → ngắt relay + báo buzzer + hiển thị OLED + gửi JSON qua HTTP POST lên WinForms Dashboard (PC) → hiển thị biểu đồ realtime + cảnh báo âm thanh.
+
+## Kiến trúc hệ thống (2 lớp)
+
+```
+[Lớp Thiết bị]                          [Lớp Giao diện PC]
+ZCT / Biến trở                           WinForms Dashboard
+      ↓                                        ↑
+ESP32 (xử lý tại biên)  ──HTTP POST──▶  HttpListener :8080
+  ├── Ngắt Relay (G26)                    ├── Chart realtime
+  ├── Bật Buzzer (G27)                    ├── Lịch sử 50 bản ghi (RAM)
+  ├── LED cảnh báo (G33)                  └── Cảnh báo âm thanh + đổi màu
+  └── OLED hiển thị (I2C)
+```
 
 ## Cấu trúc thư mục
 
 ```
-D:\DATNcanhbaodien\
+C:\Users\PC\DATNhethongcanhbaodien\
 ├── AGENTS.md                          # File này
-├── start.bat                          # Khởi động MySQL + Backend + Frontend
+├── start.bat                          # Hướng dẫn chạy WinForms
+├── WinformsDashboard.sln              # Solution file mở bằng Visual Studio
 ├── esp32_firmware_arduino/            # Firmware ESP32 (Arduino IDE)
 │   ├── esp32_firmware_arduino.ino     # Code chính
-│   └── config.h                       # WiFi, Server URL, GPIO, ngưỡng
-├── backend_springboot/                # Spring Boot 3.3.5 (Java 17, Maven)
-│   ├── pom.xml
-│   ├── src/main/java/com/datn/canhbaodien/
-│   │   ├── CanhBaoDienApplication.java
-│   │   ├── config/WebConfig.java         # CORS (*)
-│   │   ├── config/WebSocketConfig.java   # STOMP over SockJS (/ws)
-│   │   ├── controller/SensorDataController.java  # POST + GET
-│   │   ├── dto/SensorDataDTO.java
-│   │   ├── dto/AlertEventDTO.java
-│   │   ├── model/SensorData.java          # JPA entity
-│   │   ├── model/AlertHistory.java        # JPA entity
-│   │   ├── repository/SensorDataRepository.java
-│   │   ├── repository/AlertHistoryRepository.java
-│   │   └── service/SensorDataService.java  # Logic + WebSocket push
-│   └── src/main/resources/application.yml
-├── frontend_dashboard/               # Dashboard Web (Node.js server)
-│   ├── server.js                     # Static file server (port 3000)
-│   ├── index.html                    # Chart.js + SockJS + STOMP
-│   ├── css/dashboard.css
-│   └── js/dashboard.js               # WebSocket client + biểu đồ
+│   └── config.h                      # WiFi, Server URL, GPIO, ngưỡng
+├── WinformsDashboard/                 # Dashboard Windows Forms (.NET 9)
+│   ├── Form1.cs                       # Logic chính: HttpListener + xử lý data
+│   ├── Form1.Designer.cs              # Layout controls
+│   ├── Program.cs                     # Entry point
+│   ├── WinformsDashboard.csproj       # Project file
+│   └── publish/                       # File .exe đã build sẵn
 └── workflow/                          # Tài liệu báo cáo
     ├── quy_trinh_he_thong_canh_bao.md
     ├── thiet_ke_mo_hinh_nha.md
-    ├── danh_sach_linh_kien.docx
+    ├── danh_sach_linh_kien.md
     ├── huong_dan_lap_rap.md
     └── plantuml_diagrams.md
     └── workflow_diagrams.puml
@@ -58,46 +58,72 @@ D:\DATNcanhbaodien\
 | 13 | Nút nhấn RÒ RỈ | INPUT_PULLUP, toggle simulate |
 | 19 | Nút nhấn RESET | INPUT_PULLUP, tắt simulate |
 | 2 | LED (trên board) | Nhấp nháy khi alert |
+| 21 | OLED SDA | I2C Data |
+| 22 | OLED SCL | I2C Clock |
 
-## API Backend
+## WinForms Dashboard
 
-| Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| POST | `/api/v1/sensor-data` | ESP32 gửi JSON `{deviceId, leakageCurrent, alert, relayState}` |
-| GET | `/api/v1/sensor-data/latest` | Lấy 20 bản ghi gần nhất |
-| GET | `/api/v1/alerts` | Lấy 20 alert lịch sử gần nhất |
-| WS | `/ws` (STOMP) | Subscribe `/topic/alert` |
+### Endpoint nhận dữ liệu
+- **HttpListener:** `http://+:8080/` (catch-all, không phân biệt path)
+- **Method:** POST
+- **Body JSON từ ESP32:**
+  ```json
+  {
+    "deviceId": "ESP32_NHA_MO_HINH",
+    "leakageCurrent": 45.2,
+    "unit": "mA",
+    "alert": true,
+    "relayState": false,
+    "timestamp": "639451"
+  }
+  ```
 
-## Database (MySQL 8.4)
+### Controls chính
+| Control | Mô tả |
+|---------|-------|
+| `lblTitle` | Tiêu đề hệ thống |
+| `lblStatus` | Trạng thái: BÌNH THƯỜNG / CẢNH BÁO RÒ RỈ |
+| `lblCurrent` | Dòng rò hiện tại (mA) |
+| `lblLog` | Log nhận packet: số gói, thời gian, path |
+| `chartView` | Biểu đồ LiveCharts2 - đường dòng rò realtime |
+| `dgvHistory` | Bảng lịch sử 50 bản ghi gần nhất |
 
-- Database: `datn_canh_bao_dien`
-- User: `datn_user` / `Datn@2026`
-- Bảng: `sensor_data` (id, device_id, leakage_current, unit, alert, relay_state, timestamp, created_at)
-- Bảng: `alert_history` (id, device_id, leakage_current, alert_type, description, resolved, timestamp, created_at)
+### Logic xử lý
+- `StartHttpServer()` — mở HttpListener port 8080
+- `ListenLoop()` — vòng lặp nhận request (background thread)
+- `ProcessIncomingData()` — cập nhật chart, label, cảnh báo
+- Alert: nền đỏ + âm thanh `SystemSounds.Exclamation` khi `alert=true`
 
 ## Cách chạy
 
-```bash
-# 1. MySQL
-"C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld" --datadir="C:\ProgramData\MySQL\MySQL Server 8.4\Data"
-
-# 2. Backend (port 8080)
-cd D:\DATNcanhbaodien\backend_springboot
-mvn spring-boot:run
-
-# 3. Frontend (port 3000)
-cd D:\DATNcanhbaodien\frontend_dashboard
-node server.js
-
-# 4. Browser
-http://localhost:3000
+```
+1. Mở thư mục: C:\Users\PC\DATNhethongcanhbaodien\WinformsDashboard\publish\
+2. Chuột phải vào WinformsDashboard.exe
+3. Chọn "Run as Administrator" (BẮT BUỘC để mở port 8080)
+4. Cắm ESP32, bật nguồn mạch → data tự động cập nhật lên WinForms
 ```
 
-Hoặc chạy `start.bat` để làm hết 1 lần.
+> **Lưu ý:** KHÔNG chạy Spring Boot hay bất kỳ service nào khác trên port 8080, vì sẽ xung đột với WinForms.
 
 ## Firmware Logic (Edge Alert)
 
-1. Loop 200ms:
+Loop 200ms:
+- `readButtons()` — nút RÒ RỈ toggle simulate, nút RESET clear
+- `readLeakageCurrent()` — nếu simulate thì đọc biến trở (G35), nếu không thì đọc ZCT (G34)
+- `processAlert()` — nếu >= 30mA: ngắt relay, tắt LED, bật alert. Nếu < 30mA: đóng relay, bật LED
+- `controlBuzzer()` — nhịp bíp kép 800ms khi alert
+- `updateOLED()` — hiển thị dòng rò + trạng thái lên màn hình OLED
+- `sendDataToServer()` — HTTP POST 3 giây/lần lên WinForms
+- `ensureWiFi()` — tự động reconnect nếu mất WiFi
+
+## Luồng dữ liệu
+
+```
+ZCT/Biến trở → ESP32 đọc ADC → processAlert (local) → HTTP POST → WinForms HttpListener
+                    ↓                                                      ↓
+              Relay + Buzzer                                     Cập nhật Chart + Label
+              OLED hiển thị                                      Lịch sử 50 bản ghi RAM
+```
 
 ## Lưu ý phần cứng (Thiết kế chống nóng ESP32)
 
@@ -106,25 +132,10 @@ Hoặc chạy `start.bat` để làm hết 1 lần.
   - **Trạm 3.3V (Dải đỏ PHẢI):** Lấy điện từ chân **3V3** của ESP32 nhả ra. Cấp nguồn cho **OLED, Biến trở, và Còi Buzzer** (còi dùng 3.3V để không bị hú liên tục do chênh lệch áp với tín hiệu 3.3V của ESP32).
   - **Trạm Mass (Dải xanh 2 BÊN):** Nối chung toàn bộ GND của LM2596, ESP32 và các linh kiện.
 - **Mô-tơ Quạt (Tải):** Được cấp nguồn 5V nối tiếp qua cổng NO/NC của cục Relay, tuyệt đối không cắm trực tiếp vào ESP32 (tránh cháy chip).
-   - `readButtons()` — nút RÒ RỈ toggle simulate, nút RESET clear
-   - `readLeakageCurrent()` — nếu simulate thì đọc biến trở, nếu không thì đọc ZCT
-   - `processAlert()` — nếu >= 30mA: ngắt relay, tắt LED, bật alert. Nếu < 30mA: đóng relay, bật LED
-   - `controlBuzzer()` — nhấp nháy 300ms khi alert
-   - `sendDataToServer()` — HTTP POST 3 giây/lần
-   - `ensureWiFi()` — tự động reconnect nếu mất WiFi
-
-## Luồng dữ liệu
-
-```
-ZCT/Pot → ESP32 đọc ADC → processAlert (local) → HTTP POST → Spring Boot REST API
-                                                              ├── Lưu MySQL
-                                                              └── Push STOMP /topic/alert
-                                                                       └── Dashboard (Chart.js)
-```
 
 ## Lưu ý khi sửa code
 
-- Backend: Dùng đúng package `com.datn.canhbaodien`, tuân thủ REST convention
-- Frontend: CDN Chart.js 4.x, SockJS 1.x, STOMP 2.x
-- ESP32: Dùng `analogRead()` với độ phân giải 12 bit, không dùng ArduinoJson (build JSON thủ công bằng String)
-- Ngưỡng rò rỉ: 30mA (hằng số `LEAKAGE_THRESHOLD_MA` trong config.h)
+- **WinForms:** Dùng `HttpListener` với prefix `http://+:8080/`, PHẢI chạy với quyền Admin. SensorData dùng `[JsonIgnore]` cho `Timestamp` và `[JsonProperty("timestamp")]` cho `EspTimestamp` (string) để tránh lỗi parse DateTime từ giá trị millis() của ESP32.
+- **ESP32:** Dùng `analogRead()` với độ phân giải 12 bit, không dùng ArduinoJson (build JSON thủ công bằng String). URL server: `http://<IP_PC>:8080/api/v1/sensor-data` (không có trailing slash).
+- **Ngưỡng rò rỉ:** 30mA (hằng số `LEAKAGE_THRESHOLD_MA` trong config.h)
+- **IP máy tính:** Xem bằng lệnh `ipconfig`, điền vào `SERVER_URL` trong config.h
