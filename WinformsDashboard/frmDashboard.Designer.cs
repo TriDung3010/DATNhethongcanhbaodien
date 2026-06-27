@@ -290,6 +290,8 @@ partial class frmDashboard
         Name = "frmDashboard";
         Text = "H\u1ec7 th\u1ed1ng C\u1ea3nh b\u00e1o R\u00f2 r\u1ec9 \u0110i\u1ec7n n\u0103ng";
         MinimumSize = new Size(800, 600);
+        Load += frmDashboard_Load;
+        FormClosing += frmDashboard_FormClosing;
 
         // TableLayoutPanel rows
         tlpMain.Controls.Add(pnlHeader, 0, 0);
