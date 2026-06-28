@@ -82,6 +82,11 @@ public partial class frmDashboard : Form
 
         _historyList = new BindingList<SensorData>();
         dgvHistory.DataSource = _historyList;
+
+        // Bắt sự kiện cho các nút Sidebar
+        btnDashboard.Click += (s, e) => { /* Đang ở Dashboard rồi */ };
+        btnHistory.Click += (s, e) => { MessageBox.Show("Tính năng Lịch sử chi tiết (cần DB) đang được phát triển.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information); };
+        btnSettings.Click += (s, e) => { MessageBox.Show("Tính năng Cài đặt đang được phát triển.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information); };
     }
 
     private void frmDashboard_Load(object sender, EventArgs e)
