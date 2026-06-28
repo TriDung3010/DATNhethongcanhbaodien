@@ -9,7 +9,6 @@ using System.Media;
 using System.Net;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
@@ -25,12 +24,15 @@ public partial class frmDashboard : Form
     private Thread _listenerThread;
     private bool _isListening = false;
 
-    private ObservableCollection<double> _chartValues;
     private BindingList<SensorData> _historyList;
-    private bool _isAlerting = false;
     private int _packetCount = 0;
 
-    private ISeries[] Series { get; set; }
+    // Dictionary to manage multiple rooms
+    private Dictionary<string, ObservableCollection<double>> _roomChartValues;
+    private ObservableCollection<ISeries> _chartSeries;
+    private Dictionary<string, Panel> _roomCards;
+    private Dictionary<string, bool> _roomAlerts;
+
     private Axis[] XAxes { get; set; }
     private Axis[] YAxes { get; set; }
 
@@ -38,21 +40,10 @@ public partial class frmDashboard : Form
     {
         InitializeComponent();
 
-        _chartValues = new ObservableCollection<double>();
-
-        Series = new ISeries[]
-        {
-            new LineSeries<double>
-            {
-                Values = _chartValues,
-                Fill = new SolidColorPaint(new SKColor(0, 120, 212, 30)),
-                Stroke = new SolidColorPaint(new SKColor(0, 120, 212)) { StrokeThickness = 2 },
-                GeometryFill = new SolidColorPaint(SKColors.White),
-                GeometryStroke = new SolidColorPaint(new SKColor(0, 120, 212)) { StrokeThickness = 2 },
-                GeometrySize = 6,
-                LineSmoothness = 0.3
-            }
-        };
+        _roomChartValues = new Dictionary<string, ObservableCollection<double>>();
+        _chartSeries = new ObservableCollection<ISeries>();
+        _roomCards = new Dictionary<string, Panel>();
+        _roomAlerts = new Dictionary<string, bool>();
 
         XAxes = new Axis[]
         {
@@ -75,7 +66,7 @@ public partial class frmDashboard : Form
             }
         };
 
-        chartView.Series = Series;
+        chartView.Series = _chartSeries;
         chartView.XAxes = XAxes;
         chartView.YAxes = YAxes;
         chartView.DrawMarginFrame = null;
@@ -85,12 +76,15 @@ public partial class frmDashboard : Form
 
         // Bắt sự kiện cho các nút Sidebar
         btnDashboard.Click += (s, e) => { /* Đang ở Dashboard rồi */ };
-        btnHistory.Click += (s, e) => { MessageBox.Show("Tính năng Lịch sử chi tiết (cần DB) đang được phát triển.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information); };
+        btnHistory.Click += (s, e) => { MessageBox.Show("Tính năng Lịch sử chi tiết đang được phát triển.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information); };
         btnSettings.Click += (s, e) => { MessageBox.Show("Tính năng Cài đặt đang được phát triển.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information); };
     }
 
     private void frmDashboard_Load(object sender, EventArgs e)
     {
+        flpCards.Controls.Clear(); // Clear default cards, we will add Room Cards dynamically
+        flpCards.AutoScroll = true;
+
         ApplyGridStyling();
         StartHttpServer();
     }
@@ -101,18 +95,18 @@ public partial class frmDashboard : Form
 
         if (dgvHistory.Columns["DeviceId"] != null)
         {
-            dgvHistory.Columns["DeviceId"].HeaderText = "Thi\u1ebft b\u1ecb";
-            dgvHistory.Columns["DeviceId"].Width = 120;
+            dgvHistory.Columns["DeviceId"].HeaderText = "Thiết bị / Khu vực";
+            dgvHistory.Columns["DeviceId"].Width = 140;
         }
         if (dgvHistory.Columns["LeakageCurrent"] != null)
         {
-            dgvHistory.Columns["LeakageCurrent"].HeaderText = "D\u00f2ng r\u00f2 (mA)";
+            dgvHistory.Columns["LeakageCurrent"].HeaderText = "Dòng rò (mA)";
             dgvHistory.Columns["LeakageCurrent"].DefaultCellStyle.Format = "F2";
             dgvHistory.Columns["LeakageCurrent"].Width = 100;
         }
         if (dgvHistory.Columns["Alert"] != null)
         {
-            dgvHistory.Columns["Alert"].HeaderText = "C\u1ea3nh b\u00e1o";
+            dgvHistory.Columns["Alert"].HeaderText = "Cảnh báo";
             dgvHistory.Columns["Alert"].Width = 80;
         }
         if (dgvHistory.Columns["RelayState"] != null)
@@ -127,7 +121,7 @@ public partial class frmDashboard : Form
         }
         if (dgvHistory.Columns["Timestamp"] != null)
         {
-            dgvHistory.Columns["Timestamp"].HeaderText = "Th\u1eddi gian nh\u1eadn";
+            dgvHistory.Columns["Timestamp"].HeaderText = "Thời gian nhận";
             dgvHistory.Columns["Timestamp"].DefaultCellStyle.Format = "HH:mm:ss dd/MM";
             dgvHistory.Columns["Timestamp"].Width = 120;
         }
@@ -146,14 +140,14 @@ public partial class frmDashboard : Form
             _listenerThread.IsBackground = true;
             _listenerThread.Start();
 
-            lblLog.Text = "\u2705 Server l\u1eafng nghe port 8080... Ch\u1edd ESP32 g\u1eedi d\u1eef li\u1ec7u.";
+            lblLog.Text = "✅ Server lắng nghe port 8080... Chờ ESP32 gửi dữ liệu từ các khu vực.";
         }
         catch (HttpListenerException ex)
         {
-            lblLog.Text = "\u274c L\u1ed7i: " + ex.Message;
+            lblLog.Text = "❌ Lỗi: " + ex.Message;
             MessageBox.Show(
-                "Kh\u00f4ng th\u1ec3 m\u1edf c\u1ed5ng 8080. H\u00e3y ch\u1ea1y d\u01b0\u1edbi quy\u1ec1n Administrator!\n\nL\u1ed7i chi ti\u1ebft: " + ex.Message,
-                "L\u1ed7i Quy\u1ec1n Truy C\u1eadp",
+                "Không thể mở cổng 8080. Hãy chạy dưới quyền Administrator!\n\nLỗi chi tiết: " + ex.Message,
+                "Lỗi Quyền Truy Cập",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
         }
@@ -181,12 +175,14 @@ public partial class frmDashboard : Form
                             if (data != null)
                             {
                                 data.Timestamp = DateTime.Now;
+                                if (string.IsNullOrEmpty(data.DeviceId)) data.DeviceId = "UNKNOWN_ROOM";
+                                
                                 _packetCount++;
 
                                 this.Invoke((MethodInvoker)delegate
                                 {
                                     ProcessIncomingData(data);
-                                    lblLog.Text = $"\ud83d\udce6 G\u00f3i tin: {_packetCount} | Cu\u1ed1i: {DateTime.Now:HH:mm:ss} | {request.Url?.PathAndQuery}";
+                                    lblLog.Text = $"📦 Gói tin: {_packetCount} | Cuối: {DateTime.Now:HH:mm:ss} | {data.DeviceId} ({data.LeakageCurrent:F2}mA)";
                                 });
                             }
                         }
@@ -194,7 +190,7 @@ public partial class frmDashboard : Form
                         {
                             this.Invoke((MethodInvoker)delegate
                             {
-                                lblLog.Text = "\u26a0\ufe0f L\u1ed7i parse JSON: " + parseEx.Message;
+                                lblLog.Text = "⚠️ Lỗi parse JSON: " + parseEx.Message;
                             });
                         }
                     }
@@ -217,46 +213,142 @@ public partial class frmDashboard : Form
         }
     }
 
+    private void EnsureRoomExists(string deviceId)
+    {
+        if (!_roomChartValues.ContainsKey(deviceId))
+        {
+            // 1. Setup Chart Series for this Room
+            var newValues = new ObservableCollection<double>();
+            _roomChartValues[deviceId] = newValues;
+
+            var random = new Random();
+            byte r = (byte)random.Next(50, 200);
+            byte g = (byte)random.Next(50, 200);
+            byte b = (byte)random.Next(50, 200);
+
+            var lineSeries = new LineSeries<double>
+            {
+                Name = deviceId,
+                Values = newValues,
+                Fill = null,
+                Stroke = new SolidColorPaint(new SKColor(r, g, b)) { StrokeThickness = 2 },
+                GeometryFill = new SolidColorPaint(SKColors.White),
+                GeometryStroke = new SolidColorPaint(new SKColor(r, g, b)) { StrokeThickness = 2 },
+                GeometrySize = 6,
+                LineSmoothness = 0.3
+            };
+            _chartSeries.Add(lineSeries);
+
+            // 2. Setup Room Card in UI
+            Panel roomCard = new Panel
+            {
+                BackColor = Color.White,
+                Size = new Size(220, 72),
+                Margin = new Padding(0, 0, 12, 12),
+                Name = "pnl" + deviceId
+            };
+
+            Label lblTitle = new Label
+            {
+                Text = deviceId,
+                Font = new Font("Segoe UI", 8, FontStyle.Bold),
+                ForeColor = Color.FromArgb(100, 110, 120),
+                Location = new Point(14, 8),
+                AutoSize = true
+            };
+
+            Label lblCurrent = new Label
+            {
+                Text = "0.00",
+                Font = new Font("Segoe UI", 26, FontStyle.Bold),
+                ForeColor = Color.FromArgb(22, 27, 34),
+                Location = new Point(14, 20),
+                AutoSize = true,
+                Name = "lblCurrent"
+            };
+
+            Label lblUnit = new Label
+            {
+                Text = "mA",
+                Font = new Font("Segoe UI", 14, FontStyle.Regular),
+                ForeColor = Color.FromArgb(100, 110, 120),
+                Location = new Point(110, 38),
+                AutoSize = true
+            };
+
+            Panel pnlDot = new Panel
+            {
+                BackColor = Color.FromArgb(46, 160, 67),
+                Size = new Size(16, 16),
+                Location = new Point(190, 10),
+                Name = "pnlDot"
+            };
+
+            roomCard.Controls.Add(lblTitle);
+            roomCard.Controls.Add(lblCurrent);
+            roomCard.Controls.Add(lblUnit);
+            roomCard.Controls.Add(pnlDot);
+
+            _roomCards[deviceId] = roomCard;
+            _roomAlerts[deviceId] = false;
+            flpCards.Controls.Add(roomCard);
+        }
+    }
+
     private void ProcessIncomingData(SensorData data)
     {
+        EnsureRoomExists(data.DeviceId);
+
+        // Update History
         _historyList.Insert(0, data);
         if (_historyList.Count > 50)
             _historyList.RemoveAt(50);
 
-        _chartValues.Add(data.LeakageCurrent);
-        if (_chartValues.Count > 50)
-            _chartValues.RemoveAt(0);
+        // Update Chart
+        var values = _roomChartValues[data.DeviceId];
+        values.Add(data.LeakageCurrent);
+        if (values.Count > 50)
+            values.RemoveAt(0);
+
+        // Update UI Card
+        Panel card = _roomCards[data.DeviceId];
+        Label lblCurrent = (Label)card.Controls["lblCurrent"];
+        Panel pnlDot = (Panel)card.Controls["pnlDot"];
 
         lblCurrent.Text = data.LeakageCurrent.ToString("F2");
-        lblPacketCount.Text = _packetCount.ToString();
 
+        // Handle Alert
+        bool currentlyAlerting = _roomAlerts[data.DeviceId];
         if (data.Alert)
         {
-            if (!_isAlerting)
+            if (!currentlyAlerting)
             {
-                _isAlerting = true;
-                pnlStatusCard.BackColor = Color.FromArgb(255, 235, 235);
-                pnlStatusDot.BackColor = Color.FromArgb(209, 52, 56);
-                lblStatus.Text = "C\u1ea2NH B\u00c1O R\u00d2 R\u1ec8!";
-                lblStatus.ForeColor = Color.FromArgb(209, 52, 56);
+                _roomAlerts[data.DeviceId] = true;
+                card.BackColor = Color.FromArgb(255, 235, 235);
+                pnlDot.BackColor = Color.FromArgb(209, 52, 56);
                 lblCurrent.ForeColor = Color.FromArgb(209, 52, 56);
-                lblOnlineStatus.Text = "\u25cf C\u1ea3nh b\u00e1o!";
-                lblOnlineStatus.ForeColor = Color.FromArgb(209, 52, 56);
                 SystemSounds.Exclamation.Play();
+                
+                // Update Global Status if any room is alerting
+                lblOnlineStatus.Text = "● Cảnh báo rò rỉ!";
+                lblOnlineStatus.ForeColor = Color.FromArgb(209, 52, 56);
             }
         }
         else
         {
-            if (_isAlerting)
+            if (currentlyAlerting)
             {
-                _isAlerting = false;
-                pnlStatusCard.BackColor = Color.White;
-                pnlStatusDot.BackColor = Color.FromArgb(46, 160, 67);
-                lblStatus.Text = "B\u00ccNH TH\u01af\u1edcNG";
-                lblStatus.ForeColor = Color.FromArgb(46, 160, 67);
+                _roomAlerts[data.DeviceId] = false;
+                card.BackColor = Color.White;
+                pnlDot.BackColor = Color.FromArgb(46, 160, 67);
                 lblCurrent.ForeColor = Color.FromArgb(22, 27, 34);
-                lblOnlineStatus.Text = "\u25cf \u0110ang ho\u1ea1t \u0111\u1ed9ng";
-                lblOnlineStatus.ForeColor = Color.FromArgb(46, 160, 67);
+                
+                // Check if all rooms are safe
+                if (!_roomAlerts.Values.Any(a => a))
+                {
+                    lblOnlineStatus.Text = "● Đang hoạt động";
+                    lblOnlineStatus.ForeColor = Color.FromArgb(46, 160, 67);
+                }
             }
         }
     }
