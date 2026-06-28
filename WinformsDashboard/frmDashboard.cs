@@ -72,31 +72,23 @@ public partial class frmDashboard : Form
         chartView.Series = _chartSeries;
         chartView.XAxes = XAxes;
         chartView.YAxes = YAxes;
-        chartView.DrawMarginFrame = null;
-
         _historyList = new BindingList<SensorData>();
         dgvHistory.DataSource = _historyList;
+    }
 
-        // Bắt sự kiện cho các nút Sidebar
-        btnDashboard.Click += (s, e) => { /* Đang ở Dashboard rồi */ };
-        btnHistory.Click += (s, e) => { MessageBox.Show("Tính năng Lịch sử chi tiết đang được phát triển.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information); };
-        btnSettings.Click += (s, e) => {
-            frmRoomManager frm = new frmRoomManager();
-            frm.ShowDialog();
-            // Tải lại config sau khi đóng form
-            LoadRoomConfigs();
-            // Cập nhật lại UI cho các phòng đã hiển thị
-            foreach (var kvp in _roomCards)
+    public void ReloadRoomsConfig()
+    {
+        LoadRoomConfigs();
+        foreach (var kvp in _roomCards)
+        {
+            var deviceId = kvp.Key;
+            var card = kvp.Value;
+            Label lblTitle = (Label)card.Controls["lblTitle"];
+            if (lblTitle != null)
             {
-                var deviceId = kvp.Key;
-                var card = kvp.Value;
-                Label lblTitle = (Label)card.Controls["lblTitle"];
-                if (lblTitle != null)
-                {
-                    lblTitle.Text = _roomConfigs.ContainsKey(deviceId) ? _roomConfigs[deviceId].RoomName : deviceId;
-                }
+                lblTitle.Text = _roomConfigs.ContainsKey(deviceId) ? _roomConfigs[deviceId].RoomName : deviceId;
             }
-        };
+        }
     }
 
     private void LoadRoomConfigs()

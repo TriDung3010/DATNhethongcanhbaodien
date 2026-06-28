@@ -13,12 +13,6 @@ partial class frmDashboard
 
     private void InitializeComponent()
     {
-        pnlSidebar = new Panel();
-        btnSettings = new Button();
-        btnHistory = new Button();
-        btnDashboard = new Button();
-        lblSidebarTitle = new Label();
-        pnlContent = new Panel();
         tlpMain = new TableLayoutPanel();
         pnlHeader = new Panel();
         lblTitle = new Label();
@@ -45,8 +39,6 @@ partial class frmDashboard
         dgvHistory = new DataGridView();
         pnlFooter = new Panel();
         lblLog = new Label();
-        pnlSidebar.SuspendLayout();
-        pnlContent.SuspendLayout();
         tlpMain.SuspendLayout();
         pnlHeader.SuspendLayout();
         flpCards.SuspendLayout();
@@ -58,89 +50,6 @@ partial class frmDashboard
         ((System.ComponentModel.ISupportInitialize)dgvHistory).BeginInit();
         pnlFooter.SuspendLayout();
         SuspendLayout();
-        // 
-        // pnlSidebar
-        // 
-        pnlSidebar.BackColor = Color.FromArgb(22, 27, 34);
-        pnlSidebar.Controls.Add(btnSettings);
-        pnlSidebar.Controls.Add(btnHistory);
-        pnlSidebar.Controls.Add(btnDashboard);
-        pnlSidebar.Controls.Add(lblSidebarTitle);
-        pnlSidebar.Dock = DockStyle.Left;
-        pnlSidebar.Location = new Point(0, 0);
-        pnlSidebar.Name = "pnlSidebar";
-        pnlSidebar.Size = new Size(200, 680);
-        pnlSidebar.TabIndex = 0;
-        // 
-        // btnSettings
-        // 
-        btnSettings.Dock = DockStyle.Top;
-        btnSettings.FlatAppearance.BorderSize = 0;
-        btnSettings.FlatStyle = FlatStyle.Flat;
-        btnSettings.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        btnSettings.ForeColor = Color.White;
-        btnSettings.Location = new Point(0, 160);
-        btnSettings.Name = "btnSettings";
-        btnSettings.Padding = new Padding(20, 0, 0, 0);
-        btnSettings.Size = new Size(200, 45);
-        btnSettings.TabIndex = 3;
-        btnSettings.Text = "⚙  Cài đặt";
-        btnSettings.TextAlign = ContentAlignment.MiddleLeft;
-        btnSettings.UseVisualStyleBackColor = true;
-        // 
-        // btnHistory
-        // 
-        btnHistory.Dock = DockStyle.Top;
-        btnHistory.FlatAppearance.BorderSize = 0;
-        btnHistory.FlatStyle = FlatStyle.Flat;
-        btnHistory.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        btnHistory.ForeColor = Color.White;
-        btnHistory.Location = new Point(0, 115);
-        btnHistory.Name = "btnHistory";
-        btnHistory.Padding = new Padding(20, 0, 0, 0);
-        btnHistory.Size = new Size(200, 45);
-        btnHistory.TabIndex = 2;
-        btnHistory.Text = "🕒 Lịch sử";
-        btnHistory.TextAlign = ContentAlignment.MiddleLeft;
-        btnHistory.UseVisualStyleBackColor = true;
-        // 
-        // btnDashboard
-        // 
-        btnDashboard.BackColor = Color.FromArgb(46, 160, 67);
-        btnDashboard.Dock = DockStyle.Top;
-        btnDashboard.FlatAppearance.BorderSize = 0;
-        btnDashboard.FlatStyle = FlatStyle.Flat;
-        btnDashboard.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnDashboard.ForeColor = Color.White;
-        btnDashboard.Location = new Point(0, 70);
-        btnDashboard.Name = "btnDashboard";
-        btnDashboard.Padding = new Padding(20, 0, 0, 0);
-        btnDashboard.Size = new Size(200, 45);
-        btnDashboard.TabIndex = 1;
-        btnDashboard.Text = "📊 Tổng quan";
-        btnDashboard.TextAlign = ContentAlignment.MiddleLeft;
-        btnDashboard.UseVisualStyleBackColor = false;
-        // 
-        // lblSidebarTitle
-        // 
-        lblSidebarTitle.Dock = DockStyle.Top;
-        lblSidebarTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblSidebarTitle.ForeColor = Color.White;
-        lblSidebarTitle.Location = new Point(0, 0);
-        lblSidebarTitle.Name = "lblSidebarTitle";
-        lblSidebarTitle.Size = new Size(200, 70);
-        lblSidebarTitle.TabIndex = 0;
-        lblSidebarTitle.Text = "🔌 LEAK GUARD";
-        lblSidebarTitle.TextAlign = ContentAlignment.MiddleCenter;
-        // 
-        // pnlContent
-        // 
-        pnlContent.Controls.Add(tlpMain);
-        pnlContent.Dock = DockStyle.Fill;
-        pnlContent.Location = new Point(200, 0);
-        pnlContent.Name = "pnlContent";
-        pnlContent.Size = new Size(720, 680);
-        pnlContent.TabIndex = 1;
         // 
         // tlpMain
         // 
@@ -482,16 +391,12 @@ partial class frmDashboard
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.FromArgb(240, 242, 245);
-        ClientSize = new Size(920, 680);
-        Controls.Add(pnlContent);
-        Controls.Add(pnlSidebar);
-        MinimumSize = new Size(800, 600);
+        ClientSize = new Size(720, 680);
+        Controls.Add(tlpMain);
         Name = "frmDashboard";
-        Text = "Hệ thống Cảnh báo Rò rỉ Điện năng - Dashboard";
+        Text = "Dashboard";
         Load += frmDashboard_Load;
         FormClosing += frmDashboard_FormClosing;
-        pnlSidebar.ResumeLayout(false);
-        pnlContent.ResumeLayout(false);
         tlpMain.ResumeLayout(false);
         pnlHeader.ResumeLayout(false);
         pnlHeader.PerformLayout();
@@ -511,12 +416,6 @@ partial class frmDashboard
         ResumeLayout(false);
     }
 
-    private Panel pnlSidebar;
-    private Button btnSettings;
-    private Button btnHistory;
-    private Button btnDashboard;
-    private Label lblSidebarTitle;
-    private Panel pnlContent;
     private TableLayoutPanel tlpMain;
     private Panel pnlHeader;
     private Label lblTitle;
