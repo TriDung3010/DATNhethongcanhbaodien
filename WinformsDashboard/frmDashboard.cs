@@ -28,6 +28,7 @@ public partial class frmDashboard : Form
     private int _packetCount = 0;
 
     // Dictionary to manage multiple rooms
+    private Dictionary<string, RoomConfig> _roomConfigs;
     private Dictionary<string, ObservableCollection<double>> _roomChartValues;
     private ObservableCollection<ISeries> _chartSeries;
     private Dictionary<string, Panel> _roomCards;
@@ -39,6 +40,8 @@ public partial class frmDashboard : Form
     public frmDashboard()
     {
         InitializeComponent();
+
+        LoadRoomConfigs();
 
         _roomChartValues = new Dictionary<string, ObservableCollection<double>>();
         _chartSeries = new ObservableCollection<ISeries>();
@@ -77,7 +80,36 @@ public partial class frmDashboard : Form
         // Bắt sự kiện cho các nút Sidebar
         btnDashboard.Click += (s, e) => { /* Đang ở Dashboard rồi */ };
         btnHistory.Click += (s, e) => { MessageBox.Show("Tính năng Lịch sử chi tiết đang được phát triển.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information); };
-        btnSettings.Click += (s, e) => { MessageBox.Show("Tính năng Cài đặt đang được phát triển.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information); };
+        btnSettings.Click += (s, e) => {
+            frmRoomManager frm = new frmRoomManager();
+            frm.ShowDialog();
+            // Tải lại config sau khi đóng form
+            LoadRoomConfigs();
+            // Cập nhật lại UI cho các phòng đã hiển thị
+            foreach (var kvp in _roomCards)
+            {
+                var deviceId = kvp.Key;
+                var card = kvp.Value;
+                Label lblTitle = (Label)card.Controls["lblTitle"];
+                if (lblTitle != null)
+                {
+                    lblTitle.Text = _roomConfigs.ContainsKey(deviceId) ? _roomConfigs[deviceId].RoomName : deviceId;
+                }
+            }
+        };
+    }
+
+    private void LoadRoomConfigs()
+    {
+        _roomConfigs = new Dictionary<string, RoomConfig>();
+        var rooms = RoomManager.LoadRooms();
+        foreach (var r in rooms)
+        {
+            if (!string.IsNullOrEmpty(r.DeviceId))
+            {
+                _roomConfigs[r.DeviceId] = r;
+            }
+        }
     }
 
     private void frmDashboard_Load(object sender, EventArgs e)
@@ -182,7 +214,8 @@ public partial class frmDashboard : Form
                                 this.Invoke((MethodInvoker)delegate
                                 {
                                     ProcessIncomingData(data);
-                                    lblLog.Text = $"📦 Gói tin: {_packetCount} | Cuối: {DateTime.Now:HH:mm:ss} | {data.DeviceId} ({data.LeakageCurrent:F2}mA)";
+                                    string displayName = _roomConfigs.ContainsKey(data.DeviceId) ? _roomConfigs[data.DeviceId].RoomName : data.DeviceId;
+                                    lblLog.Text = $"📦 Gói tin: {_packetCount} | Cuối: {DateTime.Now:HH:mm:ss} | {displayName} ({data.LeakageCurrent:F2}mA)";
                                 });
                             }
                         }
@@ -226,9 +259,10 @@ public partial class frmDashboard : Form
             byte g = (byte)random.Next(50, 200);
             byte b = (byte)random.Next(50, 200);
 
+            string roomName = _roomConfigs.ContainsKey(deviceId) ? _roomConfigs[deviceId].RoomName : deviceId;
             var lineSeries = new LineSeries<double>
             {
-                Name = deviceId,
+                Name = roomName,
                 Values = newValues,
                 Fill = null,
                 Stroke = new SolidColorPaint(new SKColor(r, g, b)) { StrokeThickness = 2 },
@@ -250,11 +284,12 @@ public partial class frmDashboard : Form
 
             Label lblTitle = new Label
             {
-                Text = deviceId,
+                Text = _roomConfigs.ContainsKey(deviceId) ? _roomConfigs[deviceId].RoomName : deviceId,
                 Font = new Font("Segoe UI", 8, FontStyle.Bold),
                 ForeColor = Color.FromArgb(100, 110, 120),
                 Location = new Point(14, 8),
-                AutoSize = true
+                AutoSize = true,
+                Name = "lblTitle"
             };
 
             Label lblCurrent = new Label
