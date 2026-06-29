@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WinformsDashboard")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e01a4bf2fa2d476f2bf17226e92d8faadb08ddcf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+406cc715f9913fe2e139985270717c005ec62a47")]
 [assembly: System.Reflection.AssemblyProductAttribute("WinformsDashboard")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WinformsDashboard")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

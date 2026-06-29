@@ -1,4 +1,4 @@
-﻿namespace WinformsDashboard.Forms
+namespace WinformsDashboard.Forms
 {
     partial class UserForm
     {
@@ -59,8 +59,8 @@
             // pnlMain
             // 
             pnlMain.BackColor = Color.FromArgb(240, 242, 245);
-            pnlMain.Controls.Add(pnlInput);
             pnlMain.Controls.Add(dgvUsers);
+            pnlMain.Controls.Add(pnlInput);
             pnlMain.Controls.Add(pnlToolbar);
             pnlMain.Controls.Add(pnlTitleBar);
             pnlMain.Dock = DockStyle.Fill;
@@ -82,13 +82,13 @@
             pnlInput.Controls.Add(txtUsername);
             pnlInput.Controls.Add(lblUsername);
             pnlInput.CustomizableEdges = customizableEdges9;
-            pnlInput.Dock = DockStyle.Fill;
+            pnlInput.Dock = DockStyle.Top;
             pnlInput.FillColor = Color.FromArgb(255, 255, 255);
             pnlInput.Location = new Point(0, 420);
             pnlInput.Name = "pnlInput";
             pnlInput.Padding = new Padding(20, 15, 20, 15);
             pnlInput.ShadowDecoration.CustomizableEdges = customizableEdges10;
-            pnlInput.Size = new Size(1060, 240);
+            pnlInput.Size = new Size(1060, 90);
             pnlInput.TabIndex = 0;
             // 
             // cmbRole
@@ -237,7 +237,7 @@
             dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
             dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
             dgvUsers.DefaultCellStyle = dataGridViewCellStyle3;
-            dgvUsers.Dock = DockStyle.Top;
+            dgvUsers.Dock = DockStyle.Fill;
             dgvUsers.GridColor = Color.FromArgb(222, 226, 230);
             dgvUsers.Location = new Point(0, 120);
             dgvUsers.Name = "dgvUsers";

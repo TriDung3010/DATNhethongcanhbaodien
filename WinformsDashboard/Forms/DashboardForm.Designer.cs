@@ -4,6 +4,23 @@ namespace WinformsDashboard.Forms
     {
         private System.ComponentModel.IContainer components = null;
 
+        private System.Windows.Forms.TableLayoutPanel pnlLossCards;
+        private Guna.UI2.WinForms.Guna2Panel pnlLossW;
+        private System.Windows.Forms.Label lblLossWTitle;
+        private System.Windows.Forms.Label lblDashLossW;
+        private Guna.UI2.WinForms.Guna2Panel pnlLossEnergy;
+        private System.Windows.Forms.Label lblLossEnergyTitle;
+        private System.Windows.Forms.Label lblDashLossEnergy;
+        private Guna.UI2.WinForms.Guna2Panel pnlLossCost;
+        private System.Windows.Forms.Label lblLossCostTitle;
+        private System.Windows.Forms.Label lblDashLossCost;
+        private Guna.UI2.WinForms.Guna2Panel pnlLossMonthCost;
+        private System.Windows.Forms.Label lblLossMonthCostTitle;
+        private System.Windows.Forms.Label lblDashMonthCost;
+        private System.Windows.Forms.Label _lblDebugLog;
+        
+        private System.Windows.Forms.Button btnAIAnalysis;
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null)) components.Dispose();
@@ -26,6 +43,23 @@ namespace WinformsDashboard.Forms
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges7 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges8 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             pnlMain = new Panel();
+
+            pnlLossCards = new TableLayoutPanel();
+            pnlLossW = new Guna.UI2.WinForms.Guna2Panel();
+            lblLossWTitle = new Label();
+            lblDashLossW = new Label();
+            pnlLossEnergy = new Guna.UI2.WinForms.Guna2Panel();
+            lblLossEnergyTitle = new Label();
+            lblDashLossEnergy = new Label();
+            pnlLossCost = new Guna.UI2.WinForms.Guna2Panel();
+            lblLossCostTitle = new Label();
+            lblDashLossCost = new Label();
+            pnlLossMonthCost = new Guna.UI2.WinForms.Guna2Panel();
+            lblLossMonthCostTitle = new Label();
+            lblDashMonthCost = new Label();
+            _lblDebugLog = new Label();
+            
+            btnAIAnalysis = new Button();
             chartView = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
             pnlCards = new TableLayoutPanel();
             pnlCard1 = new Guna.UI2.WinForms.Guna2Panel();
@@ -48,6 +82,13 @@ namespace WinformsDashboard.Forms
             lblSubtitle = new Label();
             lblTitle = new Label();
             pnlMain.SuspendLayout();
+
+            pnlLossCards.SuspendLayout();
+            pnlLossW.SuspendLayout();
+            pnlLossEnergy.SuspendLayout();
+            pnlLossCost.SuspendLayout();
+            pnlLossMonthCost.SuspendLayout();
+            
             pnlCards.SuspendLayout();
             pnlCard1.SuspendLayout();
             pnlCard2.SuspendLayout();
@@ -59,7 +100,9 @@ namespace WinformsDashboard.Forms
             // pnlMain
             // 
             pnlMain.BackColor = Color.FromArgb(240, 242, 245);
-            pnlMain.Controls.Add(chartView);
+                        pnlMain.Controls.Add(chartView);
+            pnlMain.Controls.Add(_lblDebugLog);
+            pnlMain.Controls.Add(pnlLossCards);
             pnlMain.Controls.Add(pnlCards);
             pnlMain.Controls.Add(pnlTitleBar);
             pnlMain.Dock = DockStyle.Fill;
@@ -90,10 +133,10 @@ namespace WinformsDashboard.Forms
             skDefaultLegend1.Y = 0F;
             chartView.Legend = skDefaultLegend1;
             chartView.Location = new Point(0, 210);
-            chartView.Margin = new Padding(20);
+            
             chartView.MatchAxesScreenDataRatio = false;
             chartView.Name = "chartView";
-            chartView.Padding = new Padding(20);
+            chartView.Padding = new Padding(0); chartView.Margin = new Padding(10, 20, 10, 10);
             chartView.Size = new Size(1060, 430);
             chartView.TabIndex = 0;
             skDefaultTooltip1.AnimationsSpeed = TimeSpan.Parse("00:00:00.1500000");
@@ -338,6 +381,7 @@ namespace WinformsDashboard.Forms
             pnlTitleBar.BackColor = Color.Transparent;
             pnlTitleBar.Controls.Add(lblSubtitle);
             pnlTitleBar.Controls.Add(lblTitle);
+            pnlTitleBar.Controls.Add(btnAIAnalysis);
             pnlTitleBar.Dock = DockStyle.Top;
             pnlTitleBar.Location = new Point(0, 0);
             pnlTitleBar.Name = "pnlTitleBar";
@@ -366,6 +410,208 @@ namespace WinformsDashboard.Forms
             lblTitle.Size = new Size(347, 36);
             lblTitle.TabIndex = 1;
             lblTitle.Text = "⚡  Tổng Quan Hệ Thống";
+
+            // 
+            // btnAIAnalysis
+            // 
+            btnAIAnalysis.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAIAnalysis.BackColor = Color.FromArgb(0, 120, 215);
+            btnAIAnalysis.Cursor = Cursors.Hand;
+            btnAIAnalysis.FlatAppearance.BorderSize = 0;
+            btnAIAnalysis.FlatStyle = FlatStyle.Flat;
+            btnAIAnalysis.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            btnAIAnalysis.ForeColor = Color.White;
+            btnAIAnalysis.Location = new Point(860, 12);
+            btnAIAnalysis.Name = "btnAIAnalysis";
+            btnAIAnalysis.Size = new Size(180, 45);
+            btnAIAnalysis.TabIndex = 2;
+            btnAIAnalysis.Text = "🤖 Phân Tích AI";
+            btnAIAnalysis.UseVisualStyleBackColor = false;
+            // 
+            // _lblDebugLog
+            // 
+            _lblDebugLog.BackColor = Color.OrangeRed;
+            _lblDebugLog.Dock = DockStyle.Top;
+            _lblDebugLog.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            _lblDebugLog.ForeColor = Color.White;
+            _lblDebugLog.Location = new Point(0, 210);
+            _lblDebugLog.Name = "_lblDebugLog";
+            _lblDebugLog.Size = new Size(1060, 35);
+            _lblDebugLog.TabIndex = 3;
+            _lblDebugLog.Text = "⏳ ĐANG CHỜ KẾT NỐI TỪ MẠCH ESP32 (CỔNG 8080)...";
+            _lblDebugLog.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // pnlLossCards
+            // 
+            pnlLossCards.ColumnCount = 4;
+            pnlLossCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            pnlLossCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            pnlLossCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            pnlLossCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            pnlLossCards.Controls.Add(pnlLossW, 0, 0);
+            pnlLossCards.Controls.Add(pnlLossEnergy, 1, 0);
+            pnlLossCards.Controls.Add(pnlLossCost, 2, 0);
+            pnlLossCards.Controls.Add(pnlLossMonthCost, 3, 0);
+            pnlLossCards.Dock = DockStyle.Top;
+            pnlLossCards.Location = new Point(0, 210);
+            pnlLossCards.Name = "pnlLossCards";
+            pnlLossCards.RowCount = 1;
+            pnlLossCards.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            pnlLossCards.Size = new Size(1060, 80);
+            pnlLossCards.TabIndex = 2;
+            // 
+            // pnlLossW
+            // 
+            pnlLossW.BackColor = Color.Transparent;
+            pnlLossW.BorderRadius = 10;
+            pnlLossW.Controls.Add(lblDashLossW);
+            pnlLossW.Controls.Add(lblLossWTitle);
+            pnlLossW.Dock = DockStyle.Fill;
+            pnlLossW.FillColor = Color.White;
+            pnlLossW.Location = new Point(12, 5);
+            pnlLossW.Margin = new Padding(12, 5, 12, 5);
+            pnlLossW.Name = "pnlLossW";
+            pnlLossW.Size = new Size(241, 70);
+            pnlLossW.TabIndex = 0;
+            // 
+            // lblLossWTitle
+            // 
+            lblLossWTitle.Dock = DockStyle.Top;
+            lblLossWTitle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblLossWTitle.ForeColor = Color.FromArgb(120, 144, 156);
+            lblLossWTitle.Location = new Point(0, 0);
+            lblLossWTitle.Name = "lblLossWTitle";
+            lblLossWTitle.Size = new Size(241, 25);
+            lblLossWTitle.TabIndex = 0;
+            lblLossWTitle.Text = "Công suất thất thoát";
+            lblLossWTitle.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // lblDashLossW
+            // 
+            lblDashLossW.Dock = DockStyle.Fill;
+            lblDashLossW.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblDashLossW.ForeColor = Color.FromArgb(0, 120, 215);
+            lblDashLossW.Location = new Point(0, 25);
+            lblDashLossW.Name = "lblDashLossW";
+            lblDashLossW.Size = new Size(241, 45);
+            lblDashLossW.TabIndex = 1;
+            lblDashLossW.Text = "0 W";
+            lblDashLossW.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // pnlLossEnergy
+            // 
+            pnlLossEnergy.BackColor = Color.Transparent;
+            pnlLossEnergy.BorderRadius = 10;
+            pnlLossEnergy.Controls.Add(lblDashLossEnergy);
+            pnlLossEnergy.Controls.Add(lblLossEnergyTitle);
+            pnlLossEnergy.Dock = DockStyle.Fill;
+            pnlLossEnergy.FillColor = Color.White;
+            pnlLossEnergy.Location = new Point(277, 5);
+            pnlLossEnergy.Margin = new Padding(12, 5, 12, 5);
+            pnlLossEnergy.Name = "pnlLossEnergy";
+            pnlLossEnergy.Size = new Size(241, 70);
+            pnlLossEnergy.TabIndex = 1;
+            // 
+            // lblLossEnergyTitle
+            // 
+            lblLossEnergyTitle.Dock = DockStyle.Top;
+            lblLossEnergyTitle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblLossEnergyTitle.ForeColor = Color.FromArgb(120, 144, 156);
+            lblLossEnergyTitle.Location = new Point(0, 0);
+            lblLossEnergyTitle.Name = "lblLossEnergyTitle";
+            lblLossEnergyTitle.Size = new Size(241, 25);
+            lblLossEnergyTitle.TabIndex = 0;
+            lblLossEnergyTitle.Text = "Điện năng hôm nay";
+            lblLossEnergyTitle.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // lblDashLossEnergy
+            // 
+            lblDashLossEnergy.Dock = DockStyle.Fill;
+            lblDashLossEnergy.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblDashLossEnergy.ForeColor = Color.FromArgb(0, 120, 215);
+            lblDashLossEnergy.Location = new Point(0, 25);
+            lblDashLossEnergy.Name = "lblDashLossEnergy";
+            lblDashLossEnergy.Size = new Size(241, 45);
+            lblDashLossEnergy.TabIndex = 1;
+            lblDashLossEnergy.Text = "0 kWh";
+            lblDashLossEnergy.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // pnlLossCost
+            // 
+            pnlLossCost.BackColor = Color.Transparent;
+            pnlLossCost.BorderRadius = 10;
+            pnlLossCost.Controls.Add(lblDashLossCost);
+            pnlLossCost.Controls.Add(lblLossCostTitle);
+            pnlLossCost.Dock = DockStyle.Fill;
+            pnlLossCost.FillColor = Color.White;
+            pnlLossCost.Location = new Point(542, 5);
+            pnlLossCost.Margin = new Padding(12, 5, 12, 5);
+            pnlLossCost.Name = "pnlLossCost";
+            pnlLossCost.Size = new Size(241, 70);
+            pnlLossCost.TabIndex = 2;
+            // 
+            // lblLossCostTitle
+            // 
+            lblLossCostTitle.Dock = DockStyle.Top;
+            lblLossCostTitle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblLossCostTitle.ForeColor = Color.FromArgb(120, 144, 156);
+            lblLossCostTitle.Location = new Point(0, 0);
+            lblLossCostTitle.Name = "lblLossCostTitle";
+            lblLossCostTitle.Size = new Size(241, 25);
+            lblLossCostTitle.TabIndex = 0;
+            lblLossCostTitle.Text = "Chi phí hôm nay";
+            lblLossCostTitle.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // lblDashLossCost
+            // 
+            lblDashLossCost.Dock = DockStyle.Fill;
+            lblDashLossCost.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblDashLossCost.ForeColor = Color.FromArgb(0, 120, 215);
+            lblDashLossCost.Location = new Point(0, 25);
+            lblDashLossCost.Name = "lblDashLossCost";
+            lblDashLossCost.Size = new Size(241, 45);
+            lblDashLossCost.TabIndex = 1;
+            lblDashLossCost.Text = "0 VNĐ";
+            lblDashLossCost.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // pnlLossMonthCost
+            // 
+            pnlLossMonthCost.BackColor = Color.Transparent;
+            pnlLossMonthCost.BorderRadius = 10;
+            pnlLossMonthCost.Controls.Add(lblDashMonthCost);
+            pnlLossMonthCost.Controls.Add(lblLossMonthCostTitle);
+            pnlLossMonthCost.Dock = DockStyle.Fill;
+            pnlLossMonthCost.FillColor = Color.White;
+            pnlLossMonthCost.Location = new Point(807, 5);
+            pnlLossMonthCost.Margin = new Padding(12, 5, 12, 5);
+            pnlLossMonthCost.Name = "pnlLossMonthCost";
+            pnlLossMonthCost.Size = new Size(241, 70);
+            pnlLossMonthCost.TabIndex = 3;
+            // 
+            // lblLossMonthCostTitle
+            // 
+            lblLossMonthCostTitle.Dock = DockStyle.Top;
+            lblLossMonthCostTitle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblLossMonthCostTitle.ForeColor = Color.FromArgb(120, 144, 156);
+            lblLossMonthCostTitle.Location = new Point(0, 0);
+            lblLossMonthCostTitle.Name = "lblLossMonthCostTitle";
+            lblLossMonthCostTitle.Size = new Size(241, 25);
+            lblLossMonthCostTitle.TabIndex = 0;
+            lblLossMonthCostTitle.Text = "Chi phí tháng này";
+            lblLossMonthCostTitle.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // lblDashMonthCost
+            // 
+            lblDashMonthCost.Dock = DockStyle.Fill;
+            lblDashMonthCost.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblDashMonthCost.ForeColor = Color.FromArgb(0, 120, 215);
+            lblDashMonthCost.Location = new Point(0, 25);
+            lblDashMonthCost.Name = "lblDashMonthCost";
+            lblDashMonthCost.Size = new Size(241, 45);
+            lblDashMonthCost.TabIndex = 1;
+            lblDashMonthCost.Text = "0 VNĐ";
+            lblDashMonthCost.TextAlign = ContentAlignment.MiddleCenter;
+
             // 
             // DashboardForm
             // 

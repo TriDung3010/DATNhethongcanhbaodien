@@ -68,3 +68,30 @@ CREATE TABLE Alerts
     FOREIGN KEY (DeviceID) REFERENCES Devices(DeviceID) ON DELETE CASCADE
 );
 GO
+
+-- 5. Bảng ElectricityConfig
+CREATE TABLE ElectricityConfig
+(
+    ConfigID INT PRIMARY KEY IDENTITY,
+    ElectricityPrice FLOAT,
+    UpdatedAt DATETIME DEFAULT GETDATE()
+);
+GO
+
+INSERT INTO ElectricityConfig (ElectricityPrice) VALUES (3000);
+GO
+
+-- 6. Bảng PowerLossHistory
+CREATE TABLE PowerLossHistory
+(
+    LossID INT PRIMARY KEY IDENTITY,
+    DeviceID INT,
+    Voltage FLOAT,
+    LeakageCurrent FLOAT,
+    PowerLoss FLOAT,
+    EnergyLoss FLOAT,
+    CostLoss FLOAT,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (DeviceID) REFERENCES Devices(DeviceID) ON DELETE CASCADE
+);
+GO

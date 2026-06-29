@@ -24,6 +24,8 @@ namespace WinformsDashboard.Forms
             this.btnHistory.Click    += BtnHistory_Click;
             this.btnReports.Click    += BtnReports_Click;
             this.btnUsers.Click      += BtnUsers_Click;
+            this.btnPowerLoss.Click  += BtnPowerLoss_Click;
+            this.btnExit.Click       += BtnExit_Click;
 
             // Mở Dashboard mặc định
             BtnDashboard_Click(btnDashboard, EventArgs.Empty);
@@ -32,12 +34,19 @@ namespace WinformsDashboard.Forms
             try
             {
                 IoTService.Instance.StartService();
+                PowerLossService.Instance.Initialize();
+                // Log thành công ra title
+                this.Text = "Dashboard - ✅ Server đang lắng nghe cổng 8080";
             }
             catch (Exception ex)
             {
+                this.Text = "Dashboard - ❌ Lỗi: " + ex.Message;
                 MessageBox.Show(
-                    "Không thể khởi động Web Server.\nVui lòng chạy bằng quyền Administrator.\nLỗi: " + ex.Message,
-                    "Lỗi phân quyền", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "Không thể khởi động IoT Server trên cổng 8080.\n" +
+                    "Lỗi chi tiết: " + ex.Message + "\n\n" +
+                    "Kiểm tra xem có app nào khác đang dùng cổng 8080 không.\n" +
+                    "(Chạy: netstat -an | findstr 8080 trong PowerShell)",
+                    "Lỗi khởi động Server", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -45,6 +54,11 @@ namespace WinformsDashboard.Forms
         {
             ActivateButton(sender as Guna.UI2.WinForms.Guna2Button);
             OpenChildForm(new DashboardForm());
+        }
+
+        private void BtnExit_Click(object? sender, EventArgs e)
+        {
+            Application.Exit();
         }
 
         private void BtnDevices_Click(object? sender, EventArgs e)
@@ -75,6 +89,12 @@ namespace WinformsDashboard.Forms
         {
             ActivateButton(sender as Guna.UI2.WinForms.Guna2Button);
             OpenChildForm(new UserForm());
+        }
+
+        private void BtnPowerLoss_Click(object? sender, EventArgs e)
+        {
+            ActivateButton(sender as Guna.UI2.WinForms.Guna2Button);
+            OpenChildForm(new PowerLossAnalysisForm());
         }
 
         private void ActivateButton(Guna.UI2.WinForms.Guna2Button? btn)

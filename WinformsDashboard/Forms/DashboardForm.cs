@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
@@ -19,6 +19,7 @@ namespace WinformsDashboard.Forms
     {
         private readonly DeviceRepository _deviceRepo = new DeviceRepository();
         private readonly AlertRepository _alertRepo = new AlertRepository();
+        private readonly PowerLossRepository _powerLossRepo = new PowerLossRepository();
 
         private ObservableCollection<ObservablePoint> _chartData = new();
         private int _timeIndex = 0;
@@ -30,6 +31,12 @@ namespace WinformsDashboard.Forms
             SetupChart();
             LoadDashboardData();
             SubscribeToEvents();
+            
+            btnAIAnalysis.Click += (s, e) =>
+            {
+                var form = new AIPredictionForm();
+                form.ShowDialog();
+            };
         }
 
         private void SubscribeToEvents()
@@ -125,6 +132,11 @@ namespace WinformsDashboard.Forms
             lblSystemStatus.ForeColor = c;
             lblCard4Icon.ForeColor = c;
 
+            // Cập nhật thanh trạng thái kết nối
+            _lblDebugLog.Text = $"🔌 ĐÃ KẾT NỐI ESP32 - NHẬN DỮ LIỆU LÚC {DateTime.Now:HH:mm:ss}";
+            _lblDebugLog.BackColor = c;
+            _lblDebugLog.ForeColor = Color.White;
+
             _chartData.Add(new ObservablePoint(_timeIndex, v));
             _timeIndex++;
 
@@ -135,6 +147,17 @@ namespace WinformsDashboard.Forms
                 _xAxis.MinLimit = _timeIndex - 50;
                 _xAxis.MaxLimit = _timeIndex;
             }
+            
+            // Cập nhật realtime cho PowerLoss
+            var latestLoss = _powerLossRepo.GetLatestRecord();
+            if (latestLoss != null)
+            {
+                lblDashLossW.Text = $"{latestLoss.PowerLoss:F2} W";
+            }
+            lblDashLossEnergy.Text = $"{_powerLossRepo.GetTodayEnergyLoss():F4} kWh";
+            lblDashLossCost.Text = $"{_powerLossRepo.GetTodayCostLoss():N0} VNĐ";
+            lblDashMonthCost.Text = $"{_powerLossRepo.GetCurrentMonthCostLoss():N0} VNĐ";
+            lblTotalDevices.Text = _deviceRepo.GetAllDevices().Count.ToString();
         }
 
         private void OnIoTAlertTriggered(object? sender, Alert alert)
@@ -162,6 +185,15 @@ namespace WinformsDashboard.Forms
                 lblAlertsToday.Text = alertsToday.Count.ToString();
 
                 lblCurrentLeakage.Text = "0.00 mA";
+                
+                var latestLoss = _powerLossRepo.GetLatestRecord();
+                if (latestLoss != null)
+                {
+                    lblDashLossW.Text = $"{latestLoss.PowerLoss:F2} W";
+                }
+                lblDashLossEnergy.Text = $"{_powerLossRepo.GetTodayEnergyLoss():F4} kWh";
+                lblDashLossCost.Text = $"{_powerLossRepo.GetTodayCostLoss():N0} VNĐ";
+                lblDashMonthCost.Text = $"{_powerLossRepo.GetCurrentMonthCostLoss():N0} VNĐ";
 
                 if (alertsToday.Count > 0)
                 {

@@ -38,8 +38,9 @@ C:\Users\PC\DATNhethongcanhbaodien\
     ├── thiet_ke_mo_hinh_nha.md
     ├── danh_sach_linh_kien.md
     ├── huong_dan_lap_rap.md
-    └── plantuml_diagrams.md
-    └── workflow_diagrams.puml
+    ├── plantuml_diagrams.md
+    ├── workflow_diagrams.puml
+    └── quy_trinh_code_sach_winforms.md
 ```
 
 ## GPIO ESP32
@@ -142,7 +143,9 @@ ZCT/Biến trở → ESP32 đọc ADC → processAlert (local) → HTTP POST →
 
 ## Lưu ý khi sửa code WinForms (Designer vs Code-behind)
 
-- **Phân tách tĩnh/động:** Bất kỳ thuộc tính tĩnh nào (như Dock, Padding, BackColor cố định) PHẢI đưa vào file .Designer.cs thông qua Visual Studio Designer. Chỉ sử dụng code .cs cho các logic động (đổi màu khi click, tính toán kích thước theo màn hình thật, cấu hình cột Grid tự sinh).
+- **Quy tắc Code Sạch (Clean Code):** Bắt buộc tuân thủ theo tài liệu [Quy Trình Code Sạch](file:///d:/DATNhethongcanhbaodien/workflow/quy_trinh_code_sach_winforms.md).
+- **Tuyệt đối CẤM code giao diện trong file .cs:** Không được dùng code C# (ví dụ: `new Label()`, `new Button()`, `Controls.Add()`) để vẽ giao diện tĩnh bên trong các file `.cs` chính. Tất cả giao diện tĩnh **PHẢI** được tạo qua Visual Studio Designer và lưu tự động vào file `.Designer.cs`. File `.cs` chỉ được chứa logic, sự kiện và data binding. Tránh làm hỏng/xung đột thiết kế giao diện của hệ thống.
+- **Phân tách tĩnh/động:** Bất kỳ thuộc tính tĩnh nào (như Dock, Padding, BackColor cố định) PHẢI đưa vào file .Designer.cs. Chỉ sử dụng code .cs cho các logic động.
 - **Z-Order và Docking:** Khi dùng Dock = Fill chung với Tiêu đề, Tiêu đề phải được set Dock = Top (hoặc Bottom/Left/Right) và phải nằm trước trong danh sách Controls.Add() để chiếm không gian, tránh bị control Fill đè lên.
-- **Tránh hàm căn giữa vô tác dụng:** Hàm 	his.CenterToScreen() phải được đặt **SAU** khi các dòng code thay đổi kích thước form động (như 	his.ClientSize = ...) trong sự kiện Load để form không bị dồn lệch sang phải/dưới.
+- **Tránh hàm căn giữa vô tác dụng:** Hàm `this.CenterToScreen()` phải được đặt **SAU** khi các dòng code thay đổi kích thước form động (như `this.ClientSize = ...`) trong sự kiện Load.
 - **Lỗi Cache Designer:** Visual Studio rất hay bị kẹt file .Designer.cs trong bộ nhớ RAM, gây ra lỗi "The name XYZ does not exist". Khi đó code trên ổ đĩa là đúng, lỗi do Cache. Phải đóng Tab Designer -> Clean -> Rebuild, hoặc chèn một hàm rỗng cùng tên để lừa Designer tải lại.

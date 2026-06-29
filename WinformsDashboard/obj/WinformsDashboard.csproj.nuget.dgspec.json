@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\DATNcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj": {}
+    "D:\\DATNhethongcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj": {}
   },
   "projects": {
-    "D:\\DATNcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj": {
+    "D:\\DATNhethongcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\DATNcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj",
+        "projectUniqueName": "D:\\DATNhethongcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj",
         "projectName": "WinformsDashboard",
-        "projectPath": "D:\\DATNcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj",
+        "projectPath": "D:\\DATNhethongcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj",
         "packagesPath": "C:\\Users\\ngovi\\.nuget\\packages\\",
-        "outputPath": "D:\\DATNcanhbaodien\\WinformsDashboard\\obj\\",
+        "outputPath": "D:\\DATNhethongcanhbaodien\\WinformsDashboard\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ngovi\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -71,6 +71,14 @@
             "Microsoft.Data.SqlClient": {
               "target": "Package",
               "version": "[7.0.2, )"
+            },
+            "itext7": {
+              "target": "Package",
+              "version": "[9.6.0, )"
+            },
+            "itext7.bouncy-castle-adapter": {
+              "target": "Package",
+              "version": "[9.6.0, )"
             }
           },
           "imports": [

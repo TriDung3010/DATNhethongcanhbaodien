@@ -1,4 +1,4 @@
-﻿namespace WinformsDashboard.Forms
+namespace WinformsDashboard.Forms
 {
     partial class MainForm
     {
@@ -29,12 +29,14 @@
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges15 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges16 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             pnlSidebar = new Guna.UI2.WinForms.Guna2Panel();
+            btnExit = new Guna.UI2.WinForms.Guna2Button();
             btnUsers = new Guna.UI2.WinForms.Guna2Button();
             btnReports = new Guna.UI2.WinForms.Guna2Button();
             btnHistory = new Guna.UI2.WinForms.Guna2Button();
             btnAlerts = new Guna.UI2.WinForms.Guna2Button();
             btnDevices = new Guna.UI2.WinForms.Guna2Button();
             btnDashboard = new Guna.UI2.WinForms.Guna2Button();
+            btnPowerLoss = new Guna.UI2.WinForms.Guna2Button();
             pnlMenuDivider = new Panel();
             pnlLogo = new Panel();
             lblLogoSub = new Label();
@@ -55,7 +57,9 @@
             pnlSidebar.Controls.Add(btnHistory);
             pnlSidebar.Controls.Add(btnAlerts);
             pnlSidebar.Controls.Add(btnDevices);
+            pnlSidebar.Controls.Add(btnPowerLoss);
             pnlSidebar.Controls.Add(btnDashboard);
+            pnlSidebar.Controls.Add(btnExit);
             pnlSidebar.Controls.Add(pnlMenuDivider);
             pnlSidebar.Controls.Add(pnlLogo);
             pnlSidebar.CustomizableEdges = customizableEdges13;
@@ -169,6 +173,40 @@
             btnDashboard.Text = "  ⚡  Dashboard";
             btnDashboard.TextAlign = HorizontalAlignment.Left;
             // 
+            // btnPowerLoss
+            // 
+            btnPowerLoss.CustomizableEdges = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            btnPowerLoss.Dock = DockStyle.Top;
+            btnPowerLoss.FillColor = Color.Transparent;
+            btnPowerLoss.Font = new Font("Segoe UI Emoji", 10F, FontStyle.Bold);
+            btnPowerLoss.ForeColor = Color.FromArgb(120, 144, 156);
+            btnPowerLoss.HoverState.FillColor = Color.FromArgb(222, 226, 230);
+            btnPowerLoss.HoverState.ForeColor = Color.FromArgb(0, 176, 255);
+            btnPowerLoss.Location = new Point(0, 411);
+            btnPowerLoss.Name = "btnPowerLoss";
+            btnPowerLoss.ShadowDecoration.CustomizableEdges = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            btnPowerLoss.Size = new Size(220, 55);
+            btnPowerLoss.TabIndex = 7;
+            btnPowerLoss.Text = "  💸  Thất Thoát";
+            btnPowerLoss.TextAlign = HorizontalAlignment.Left;
+            // 
+            // btnExit
+            // 
+            btnExit.CustomizableEdges = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            btnExit.Dock = DockStyle.Bottom;
+            btnExit.FillColor = Color.Transparent;
+            btnExit.Font = new Font("Segoe UI Emoji", 10F, FontStyle.Bold);
+            btnExit.ForeColor = Color.FromArgb(220, 53, 69); // Màu đỏ
+            btnExit.HoverState.FillColor = Color.FromArgb(255, 230, 230);
+            btnExit.HoverState.ForeColor = Color.FromArgb(220, 53, 69);
+            btnExit.Location = new Point(0, 665);
+            btnExit.Name = "btnExit";
+            btnExit.ShadowDecoration.CustomizableEdges = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            btnExit.Size = new Size(220, 55);
+            btnExit.TabIndex = 8;
+            btnExit.Text = "  🚪  Thoát";
+            btnExit.TextAlign = HorizontalAlignment.Left;
+            // 
             // pnlMenuDivider
             // 
             pnlMenuDivider.BackColor = Color.FromArgb(30, 255, 255, 255);
@@ -277,6 +315,8 @@
         private Guna.UI2.WinForms.Guna2Button btnHistory;
         private Guna.UI2.WinForms.Guna2Button btnReports;
         private Guna.UI2.WinForms.Guna2Button btnUsers;
+        private Guna.UI2.WinForms.Guna2Button btnPowerLoss;
+        private Guna.UI2.WinForms.Guna2Button btnExit;
         private Guna.UI2.WinForms.Guna2Panel  pnlHeader;
         private System.Windows.Forms.Label    lblAppName;
         private System.Windows.Forms.Panel    pnlContent;

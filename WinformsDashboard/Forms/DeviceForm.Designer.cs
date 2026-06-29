@@ -1,4 +1,4 @@
-﻿namespace WinformsDashboard.Forms
+namespace WinformsDashboard.Forms
 {
     partial class DeviceForm
     {
@@ -10,6 +10,9 @@
         }
         private void InitializeComponent()
         {
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges9 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges10 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
@@ -20,9 +23,6 @@
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges6 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges7 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges8 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges11 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges12 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges13 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
@@ -32,6 +32,7 @@
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges17 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges18 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             pnlMain = new Panel();
+            dgvDevices = new Guna.UI2.WinForms.Guna2DataGridView();
             pnlInput = new Guna.UI2.WinForms.Guna2Panel();
             txtIPAddress = new Guna.UI2.WinForms.Guna2TextBox();
             lblIPAddress = new Label();
@@ -41,7 +42,6 @@
             lblDeviceName = new Label();
             txtDeviceCode = new Guna.UI2.WinForms.Guna2TextBox();
             lblDeviceCode = new Label();
-            dgvDevices = new Guna.UI2.WinForms.Guna2DataGridView();
             pnlToolbar = new Panel();
             btnDelete = new Guna.UI2.WinForms.Guna2GradientButton();
             btnUpdate = new Guna.UI2.WinForms.Guna2GradientButton();
@@ -50,8 +50,8 @@
             pnlTitleBar = new Panel();
             lblTitle = new Label();
             pnlMain.SuspendLayout();
-            pnlInput.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvDevices).BeginInit();
+            pnlInput.SuspendLayout();
             pnlToolbar.SuspendLayout();
             pnlTitleBar.SuspendLayout();
             SuspendLayout();
@@ -59,8 +59,8 @@
             // pnlMain
             // 
             pnlMain.BackColor = Color.FromArgb(240, 242, 245);
-            pnlMain.Controls.Add(pnlInput);
             pnlMain.Controls.Add(dgvDevices);
+            pnlMain.Controls.Add(pnlInput);
             pnlMain.Controls.Add(pnlToolbar);
             pnlMain.Controls.Add(pnlTitleBar);
             pnlMain.Dock = DockStyle.Fill;
@@ -68,6 +68,64 @@
             pnlMain.Name = "pnlMain";
             pnlMain.Size = new Size(1060, 660);
             pnlMain.TabIndex = 0;
+            // 
+            // dgvDevices
+            // 
+            dgvDevices.AllowUserToAddRows = false;
+            dgvDevices.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle1.BackColor = Color.FromArgb(248, 249, 250);
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 10F);
+            dataGridViewCellStyle1.ForeColor = Color.FromArgb(33, 37, 41);
+            dataGridViewCellStyle1.SelectionBackColor = Color.FromArgb(222, 226, 230);
+            dataGridViewCellStyle1.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dgvDevices.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dgvDevices.BackgroundColor = Color.FromArgb(240, 242, 245);
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = Color.FromArgb(240, 242, 245);
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            dataGridViewCellStyle2.ForeColor = Color.FromArgb(33, 37, 41);
+            dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(240, 242, 245);
+            dataGridViewCellStyle2.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+            dgvDevices.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dgvDevices.ColumnHeadersHeight = 44;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = Color.FromArgb(255, 255, 255);
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 10F);
+            dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
+            dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(222, 226, 230);
+            dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+            dgvDevices.DefaultCellStyle = dataGridViewCellStyle3;
+            dgvDevices.Dock = DockStyle.Fill;
+            dgvDevices.GridColor = Color.FromArgb(222, 226, 230);
+            dgvDevices.Location = new Point(0, 210);
+            dgvDevices.Name = "dgvDevices";
+            dgvDevices.ReadOnly = true;
+            dgvDevices.RowHeadersVisible = false;
+            dgvDevices.RowHeadersWidth = 51;
+            dgvDevices.RowTemplate.Height = 38;
+            dgvDevices.Size = new Size(1060, 450);
+            dgvDevices.TabIndex = 1;
+            dgvDevices.ThemeStyle.AlternatingRowsStyle.BackColor = Color.FromArgb(248, 249, 250);
+            dgvDevices.ThemeStyle.AlternatingRowsStyle.Font = new Font("Segoe UI", 10F);
+            dgvDevices.ThemeStyle.AlternatingRowsStyle.ForeColor = Color.FromArgb(33, 37, 41);
+            dgvDevices.ThemeStyle.AlternatingRowsStyle.SelectionBackColor = Color.FromArgb(222, 226, 230);
+            dgvDevices.ThemeStyle.AlternatingRowsStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dgvDevices.ThemeStyle.BackColor = Color.FromArgb(240, 242, 245);
+            dgvDevices.ThemeStyle.GridColor = Color.FromArgb(222, 226, 230);
+            dgvDevices.ThemeStyle.HeaderStyle.BackColor = Color.FromArgb(240, 242, 245);
+            dgvDevices.ThemeStyle.HeaderStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            dgvDevices.ThemeStyle.HeaderStyle.ForeColor = Color.FromArgb(33, 37, 41);
+            dgvDevices.ThemeStyle.HeaderStyle.HeaightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvDevices.ThemeStyle.HeaderStyle.Height = 44;
+            dgvDevices.ThemeStyle.ReadOnly = true;
+            dgvDevices.ThemeStyle.RowsStyle.BackColor = Color.FromArgb(255, 255, 255);
+            dgvDevices.ThemeStyle.RowsStyle.Font = new Font("Segoe UI", 10F);
+            dgvDevices.ThemeStyle.RowsStyle.ForeColor = Color.FromArgb(33, 37, 41);
+            dgvDevices.ThemeStyle.RowsStyle.Height = 38;
+            dgvDevices.ThemeStyle.RowsStyle.SelectionBackColor = Color.FromArgb(222, 226, 230);
+            dgvDevices.ThemeStyle.RowsStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
             // 
             // pnlInput
             // 
@@ -82,13 +140,13 @@
             pnlInput.Controls.Add(txtDeviceCode);
             pnlInput.Controls.Add(lblDeviceCode);
             pnlInput.CustomizableEdges = customizableEdges9;
-            pnlInput.Dock = DockStyle.Fill;
+            pnlInput.Dock = DockStyle.Top;
             pnlInput.FillColor = Color.FromArgb(255, 255, 255);
-            pnlInput.Location = new Point(0, 440);
+            pnlInput.Location = new Point(0, 120);
             pnlInput.Name = "pnlInput";
             pnlInput.Padding = new Padding(20, 15, 20, 15);
             pnlInput.ShadowDecoration.CustomizableEdges = customizableEdges10;
-            pnlInput.Size = new Size(1060, 220);
+            pnlInput.Size = new Size(1060, 90);
             pnlInput.TabIndex = 0;
             // 
             // txtIPAddress
@@ -207,64 +265,6 @@
             lblDeviceCode.TabIndex = 7;
             lblDeviceCode.Text = "MÃ THIẾT BỊ";
             // 
-            // dgvDevices
-            // 
-            dgvDevices.AllowUserToAddRows = false;
-            dgvDevices.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle1.BackColor = Color.FromArgb(248, 249, 250);
-            dataGridViewCellStyle1.Font = new Font("Segoe UI", 10F);
-            dataGridViewCellStyle1.ForeColor = Color.FromArgb(33, 37, 41);
-            dataGridViewCellStyle1.SelectionBackColor = Color.FromArgb(222, 226, 230);
-            dataGridViewCellStyle1.SelectionForeColor = Color.FromArgb(33, 37, 41);
-            dgvDevices.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            dgvDevices.BackgroundColor = Color.FromArgb(240, 242, 245);
-            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = Color.FromArgb(240, 242, 245);
-            dataGridViewCellStyle2.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            dataGridViewCellStyle2.ForeColor = Color.FromArgb(33, 37, 41);
-            dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(240, 242, 245);
-            dataGridViewCellStyle2.SelectionForeColor = Color.FromArgb(33, 37, 41);
-            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
-            dgvDevices.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
-            dgvDevices.ColumnHeadersHeight = 44;
-            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = Color.FromArgb(255, 255, 255);
-            dataGridViewCellStyle3.Font = new Font("Segoe UI", 10F);
-            dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
-            dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(222, 226, 230);
-            dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
-            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
-            dgvDevices.DefaultCellStyle = dataGridViewCellStyle3;
-            dgvDevices.Dock = DockStyle.Top;
-            dgvDevices.GridColor = Color.FromArgb(222, 226, 230);
-            dgvDevices.Location = new Point(0, 120);
-            dgvDevices.Name = "dgvDevices";
-            dgvDevices.ReadOnly = true;
-            dgvDevices.RowHeadersVisible = false;
-            dgvDevices.RowHeadersWidth = 51;
-            dgvDevices.RowTemplate.Height = 38;
-            dgvDevices.Size = new Size(1060, 320);
-            dgvDevices.TabIndex = 1;
-            dgvDevices.ThemeStyle.AlternatingRowsStyle.BackColor = Color.FromArgb(248, 249, 250);
-            dgvDevices.ThemeStyle.AlternatingRowsStyle.Font = new Font("Segoe UI", 10F);
-            dgvDevices.ThemeStyle.AlternatingRowsStyle.ForeColor = Color.FromArgb(33, 37, 41);
-            dgvDevices.ThemeStyle.AlternatingRowsStyle.SelectionBackColor = Color.FromArgb(222, 226, 230);
-            dgvDevices.ThemeStyle.AlternatingRowsStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
-            dgvDevices.ThemeStyle.BackColor = Color.FromArgb(240, 242, 245);
-            dgvDevices.ThemeStyle.GridColor = Color.FromArgb(222, 226, 230);
-            dgvDevices.ThemeStyle.HeaderStyle.BackColor = Color.FromArgb(240, 242, 245);
-            dgvDevices.ThemeStyle.HeaderStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            dgvDevices.ThemeStyle.HeaderStyle.ForeColor = Color.FromArgb(33, 37, 41);
-            dgvDevices.ThemeStyle.HeaderStyle.HeaightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dgvDevices.ThemeStyle.HeaderStyle.Height = 44;
-            dgvDevices.ThemeStyle.ReadOnly = true;
-            dgvDevices.ThemeStyle.RowsStyle.BackColor = Color.FromArgb(255, 255, 255);
-            dgvDevices.ThemeStyle.RowsStyle.Font = new Font("Segoe UI", 10F);
-            dgvDevices.ThemeStyle.RowsStyle.ForeColor = Color.FromArgb(33, 37, 41);
-            dgvDevices.ThemeStyle.RowsStyle.Height = 38;
-            dgvDevices.ThemeStyle.RowsStyle.SelectionBackColor = Color.FromArgb(222, 226, 230);
-            dgvDevices.ThemeStyle.RowsStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
-            // 
             // pnlToolbar
             // 
             pnlToolbar.BackColor = Color.FromArgb(255, 255, 255);
@@ -375,9 +375,9 @@
             Name = "DeviceForm";
             Text = "DeviceForm";
             pnlMain.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvDevices).EndInit();
             pnlInput.ResumeLayout(false);
             pnlInput.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvDevices).EndInit();
             pnlToolbar.ResumeLayout(false);
             pnlTitleBar.ResumeLayout(false);
             pnlTitleBar.PerformLayout();
