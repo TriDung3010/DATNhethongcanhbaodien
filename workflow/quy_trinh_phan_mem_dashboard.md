@@ -50,3 +50,16 @@ Do ứng dụng xử lý dữ liệu trên Background Thread, việc cập nhậ
 ## 5. Phản hồi Server
 
 Sau khi đã hoàn thành các tác vụ cập nhật giao diện và cảnh báo, `HttpListener` sẽ trả về `StatusCode = 200` và chuỗi JSON `{"status":"ok"}` để xác nhận với ESP32 là đã nhận được dữ liệu thành công. Mạch ESP32 nhận được mã 200 sẽ ngừng timeout và chờ chu kỳ gửi tiếp theo.
+
+## 6. Quy chuẩn thiết kế giao diện (WinForms Best Practices)
+
+Trong quá trình phát triển Dashboard, cần tuân thủ các quy tắc phân tách giao diện sau:
+
+*   **Design-Time (Code Tĩnh):** Mọi thiết lập không thay đổi (như Dock, Padding, BackColor cố định, kích thước mặc định) PHẢI được thực hiện trong Visual Studio Designer (lưu vào file .Designer.cs). Không viết code tạo UI động như 
+ew Panel() trong code-behind nếu không thực sự cần thiết.
+*   **Runtime (Code Động):** File code-behind (.cs) CHỈ được chứa:
+    *   Logic tính toán thay đổi kích thước theo màn hình thực tế của người dùng (ví dụ: Screen.FromControl(this)). Hàm 	his.CenterToScreen() phải được gọi **sau** khi thay đổi kích thước để form không bị lệch.
+    *   Logic thay đổi màu sắc/trạng thái động khi tương tác (ví dụ: Đổi màu nút khi Click, đổi màu dòng DataGridView khi Alert = true).
+    *   Cấu hình hiển thị cột cho DataGridView (như HeaderText, Width) vì các cột này được tự động sinh ra khi bind dữ liệu (DataSource = data).
+*   **Xử lý đè giao diện (Z-Order & Docking):** Khi sử dụng Dock = Fill kết hợp với Tiêu đề, Tiêu đề phải được gán Dock = Top (hoặc Bottom/Left/Right) và phải được nằm ở đầu trong danh sách Controls.Add() để được ưu tiên hiển thị trước, giúp các Control dạng Fill không bị đè lên.
+*   **Lỗi Cache Designer:** Nếu gặp lỗi "The name 'xyz' does not exist in the current context" dù code trên ổ cứng đã đúng, đây là lỗi treo Cache của tiến trình DesignToolsServer. Cách xử lý: Đóng Tab Designer -> Clean Solution -> Rebuild Solution -> Mở lại Tab, hoặc chèn một hàm giả (dummy) để ép Designer tải lại.

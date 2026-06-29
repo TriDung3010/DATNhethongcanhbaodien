@@ -139,3 +139,10 @@ ZCT/Biến trở → ESP32 đọc ADC → processAlert (local) → HTTP POST →
 - **ESP32:** Dùng `analogRead()` với độ phân giải 12 bit, không dùng ArduinoJson (build JSON thủ công bằng String). URL server: `http://<IP_PC>:8080/api/v1/sensor-data` (không có trailing slash).
 - **Ngưỡng rò rỉ:** 30mA (hằng số `LEAKAGE_THRESHOLD_MA` trong config.h)
 - **IP máy tính:** Xem bằng lệnh `ipconfig`, điền vào `SERVER_URL` trong config.h
+
+## Lưu ý khi sửa code WinForms (Designer vs Code-behind)
+
+- **Phân tách tĩnh/động:** Bất kỳ thuộc tính tĩnh nào (như Dock, Padding, BackColor cố định) PHẢI đưa vào file .Designer.cs thông qua Visual Studio Designer. Chỉ sử dụng code .cs cho các logic động (đổi màu khi click, tính toán kích thước theo màn hình thật, cấu hình cột Grid tự sinh).
+- **Z-Order và Docking:** Khi dùng Dock = Fill chung với Tiêu đề, Tiêu đề phải được set Dock = Top (hoặc Bottom/Left/Right) và phải nằm trước trong danh sách Controls.Add() để chiếm không gian, tránh bị control Fill đè lên.
+- **Tránh hàm căn giữa vô tác dụng:** Hàm 	his.CenterToScreen() phải được đặt **SAU** khi các dòng code thay đổi kích thước form động (như 	his.ClientSize = ...) trong sự kiện Load để form không bị dồn lệch sang phải/dưới.
+- **Lỗi Cache Designer:** Visual Studio rất hay bị kẹt file .Designer.cs trong bộ nhớ RAM, gây ra lỗi "The name XYZ does not exist". Khi đó code trên ổ đĩa là đúng, lỗi do Cache. Phải đóng Tab Designer -> Clean -> Rebuild, hoặc chèn một hàm rỗng cùng tên để lừa Designer tải lại.

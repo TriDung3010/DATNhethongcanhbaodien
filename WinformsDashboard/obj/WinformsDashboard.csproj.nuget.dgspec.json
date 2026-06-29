@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\PC\\DATNhethongcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj": {}
+    "D:\\DATNcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj": {}
   },
   "projects": {
-    "C:\\Users\\PC\\DATNhethongcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj": {
+    "D:\\DATNcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\PC\\DATNhethongcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj",
+        "projectUniqueName": "D:\\DATNcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj",
         "projectName": "WinformsDashboard",
-        "projectPath": "C:\\Users\\PC\\DATNhethongcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj",
-        "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\PC\\DATNhethongcanhbaodien\\WinformsDashboard\\obj\\",
+        "projectPath": "D:\\DATNcanhbaodien\\WinformsDashboard\\WinformsDashboard.csproj",
+        "packagesPath": "C:\\Users\\ngovi\\.nuget\\packages\\",
+        "outputPath": "D:\\DATNcanhbaodien\\WinformsDashboard\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ngovi\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -48,21 +48,29 @@
           "framework": "net9.0-windows7.0",
           "targetAlias": "net9.0-windows",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[*, )"
+            },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.79, )"
+            },
+            "EPPlus": {
+              "target": "Package",
+              "version": "[8.6.1, )"
+            },
+            "Guna.UI2.WinForms": {
+              "target": "Package",
+              "version": "[2.0.4.8, )"
+            },
             "LiveChartsCore.SkiaSharpView.WinForms": {
               "target": "Package",
               "version": "[2.0.5, )"
             },
-            "Newtonsoft.Json": {
+            "Microsoft.Data.SqlClient": {
               "target": "Package",
-              "version": "[13.0.4, )"
-            },
-            "RestSharp": {
-              "target": "Package",
-              "version": "[114.0.0, )"
-            },
-            "Websocket.Client": {
-              "target": "Package",
-              "version": "[5.5.0, )"
+              "version": "[7.0.2, )"
             }
           },
           "imports": [
@@ -76,24 +84,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[9.0.17, 9.0.17]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[9.0.17, 9.0.17]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[9.0.17, 9.0.17]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[9.0.17, 9.0.17]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"

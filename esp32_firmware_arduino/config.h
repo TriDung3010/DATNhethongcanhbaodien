@@ -4,7 +4,7 @@
 #define WIFI_SSID              "Dung Gau"
 #define WIFI_PASSWORD          "Dung3010@"
 
-#define SERVER_URL             "http://192.168.1.9:8080/api/v1/sensor-data"
+#define SERVER_URL             "http://192.168.1.51:8080/api/v1/sensor-data"
 #define DEVICE_ID              "ESP32_NHA_MO_HINH"
 
 #define PIN_ZCT                34
