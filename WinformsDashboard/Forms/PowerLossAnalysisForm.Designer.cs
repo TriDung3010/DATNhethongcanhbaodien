@@ -160,12 +160,13 @@ namespace WinformsDashboard.Forms
             btnAI.FillColor = Color.FromArgb(0, 120, 215);
             btnAI.Font = new Font("Segoe UI", 9F);
             btnAI.ForeColor = Color.White;
-            btnAI.Location = new Point(20, 10);
+            btnAI.Location = new Point(0, 6);
             btnAI.Name = "btnAI";
             btnAI.ShadowDecoration.CustomizableEdges = customizableEdges2;
-            btnAI.Size = new Size(150, 40);
+            btnAI.Size = new Size(173, 40);
             btnAI.TabIndex = 0;
-            btnAI.Text = "🤖 Phân Tích AI";
+            btnAI.Text = "🤖 Phân tích tự động";
+            btnAI.Click += btnAI_Click_1;
             // 
             // btnExportExcel
             // 
@@ -174,7 +175,7 @@ namespace WinformsDashboard.Forms
             btnExportExcel.FillColor = Color.FromArgb(33, 150, 243);
             btnExportExcel.Font = new Font("Segoe UI", 9F);
             btnExportExcel.ForeColor = Color.White;
-            btnExportExcel.Location = new Point(180, 10);
+            btnExportExcel.Location = new Point(184, 6);
             btnExportExcel.Name = "btnExportExcel";
             btnExportExcel.ShadowDecoration.CustomizableEdges = customizableEdges4;
             btnExportExcel.Size = new Size(128, 40);
@@ -188,7 +189,7 @@ namespace WinformsDashboard.Forms
             btnExportPdf.FillColor = Color.FromArgb(244, 67, 54);
             btnExportPdf.Font = new Font("Segoe UI", 9F);
             btnExportPdf.ForeColor = Color.White;
-            btnExportPdf.Location = new Point(318, 10);
+            btnExportPdf.Location = new Point(318, 6);
             btnExportPdf.Name = "btnExportPdf";
             btnExportPdf.ShadowDecoration.CustomizableEdges = customizableEdges6;
             btnExportPdf.Size = new Size(120, 40);
@@ -202,7 +203,7 @@ namespace WinformsDashboard.Forms
             btnConfigPrice.FillColor = Color.FromArgb(96, 125, 139);
             btnConfigPrice.Font = new Font("Segoe UI", 9F);
             btnConfigPrice.ForeColor = Color.White;
-            btnConfigPrice.Location = new Point(448, 10);
+            btnConfigPrice.Location = new Point(444, 6);
             btnConfigPrice.Name = "btnConfigPrice";
             btnConfigPrice.ShadowDecoration.CustomizableEdges = customizableEdges8;
             btnConfigPrice.Size = new Size(140, 40);
@@ -213,9 +214,9 @@ namespace WinformsDashboard.Forms
             // 
             lblAIResult.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             lblAIResult.ForeColor = Color.FromArgb(33, 37, 41);
-            lblAIResult.Location = new Point(20, 60);
+            lblAIResult.Location = new Point(12, 49);
             lblAIResult.Name = "lblAIResult";
-            lblAIResult.Size = new Size(900, 40);
+            lblAIResult.Size = new Size(623, 40);
             lblAIResult.TabIndex = 4;
             lblAIResult.Text = "Nhấp 'Phân Tích AI' để đánh giá mức độ rủi ro và nhận đề xuất tiết kiệm.";
             // 

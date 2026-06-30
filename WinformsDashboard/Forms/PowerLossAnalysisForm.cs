@@ -18,28 +18,28 @@ namespace WinformsDashboard.Forms
         private readonly ConfigRepository _configRepo;
         private readonly OllamaService _ollamaService;
         private readonly ReportExportService _exportService;
-        
+
         private PowerLossAIResponse? _lastAiResponse = null;
 
         public PowerLossAnalysisForm()
         {
             InitializeComponent();
-            
-            
 
-            
+
+
+
             _powerLossRepo = new PowerLossRepository();
             _configRepo = new ConfigRepository();
             _ollamaService = new OllamaService();
             _exportService = new ReportExportService();
 
             this.Load += PowerLossAnalysisForm_Load;
-            
+
             btnAI.Click += BtnAI_Click;
             btnExportExcel.Click += BtnExportExcel_Click;
             btnExportPdf.Click += BtnExportPdf_Click;
             btnConfigPrice.Click += BtnConfigPrice_Click;
-            
+
             // Subscribe to real-time updates
             IoTService.Instance.OnDataReceived += OnDataReceived;
         }
@@ -69,7 +69,7 @@ namespace WinformsDashboard.Forms
             {
                 lblCurrentLoss.Text = $"{latest.PowerLoss:F2} W";
             }
-            
+
             lblTodayEnergy.Text = $"{_powerLossRepo.GetTodayEnergyLoss():F4} kWh";
             lblTodayCost.Text = $"{_powerLossRepo.GetTodayCostLoss():N0} VNĐ";
             lblMonthCost.Text = $"{_powerLossRepo.GetCurrentMonthCostLoss():N0} VNĐ";
@@ -139,11 +139,11 @@ namespace WinformsDashboard.Forms
                 var recentData = _powerLossRepo.GetAllRecords();
                 if (recentData.Count > 50) recentData = recentData.GetRange(0, 50); // Get last 50
                 double price = _configRepo.GetElectricityPrice();
-                
+
                 _lastAiResponse = await _ollamaService.AnalyzePowerLossAsync(recentData, price);
-                
+
                 lblAIResult.Text = $"Mức độ: {_lastAiResponse.WasteLevel} | Dự kiến mất: {_lastAiResponse.EstimatedMonthlyLoss} VNĐ\nĐề xuất: {_lastAiResponse.Recommendation}";
-                
+
                 if (_lastAiResponse.WasteLevel == "High")
                     lblAIResult.ForeColor = Color.Red;
                 else if (_lastAiResponse.WasteLevel == "Medium")
@@ -199,6 +199,11 @@ namespace WinformsDashboard.Forms
                 MessageBox.Show("Cập nhật thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadData();
             }
+        }
+
+        private void btnAI_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -24,6 +24,7 @@ namespace WinformsDashboard.Forms
         private ObservableCollection<ObservablePoint> _chartData = new();
         private int _timeIndex = 0;
         private Axis _xAxis = new Axis();
+        private System.Windows.Forms.Timer _clockTimer;
 
         public DashboardForm()
         {
@@ -31,12 +32,22 @@ namespace WinformsDashboard.Forms
             SetupChart();
             LoadDashboardData();
             SubscribeToEvents();
-            
+            SetupClock();
+
             btnAIAnalysis.Click += (s, e) =>
             {
                 var form = new AIPredictionForm();
                 form.ShowDialog();
             };
+        }
+
+        private void SetupClock()
+        {
+            _clockTimer = new System.Windows.Forms.Timer();
+            _clockTimer.Interval = 1000;
+            _clockTimer.Tick += (s, e) => { lblClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"); };
+            _clockTimer.Start();
+            lblClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
         }
 
         private void SubscribeToEvents()
@@ -170,6 +181,11 @@ namespace WinformsDashboard.Forms
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            if (_clockTimer != null)
+            {
+                _clockTimer.Stop();
+                _clockTimer.Dispose();
+            }
             UnsubscribeFromEvents();
             base.OnFormClosing(e);
         }
